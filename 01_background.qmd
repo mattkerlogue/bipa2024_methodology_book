@@ -1,0 +1,170 @@
+---
+format:
+  html:
+    subtitle: Why we believe an index of public administration is needed.
+source_document: https://index.bsg.ox.ac.uk/posts/background/
+order: 101
+---
+
+# Background {#sec-background}
+
+The Blavatnik Index of Public Administration 2024 is a tool designed to provide
+leaders of national civil services and public administrations with a clear,
+accessible and robust dataset on how civil services and public administrations
+around the world compare. Our ambition for the Index is to foster a more data
+and evidence informed approach to the management and reform of civil services
+and public administrations.
+
+The Index builds on the Blavatnik School of Government’s previous experience of
+collaborating, with the Institute for Government and the UK Cabinet Office, in
+the production of the International Civil Service Effectiveness (InCiSE) Index
+from 2016 to 2020. While inspired by and a conceptual successor to the InCiSE
+Index, changes to methodology, data availability and country coverage mean that
+the results of the Blavatnik Index of Public Administration are not directly
+comparable to the results of the InCiSE Index.
+
+## The need for an index of public administration
+
+Benchmarking is a common practice in performance management, the comparison of
+a unit (a company, a school, an employee) with its peers can identify that
+unit’s strengths and weaknesses and potential opportunities for improvement. As
+a result of its natural monopoly, it can be difficult to compare the activities
+and characteristics of a country’s national government with other organisations
+and institutions within that country. Therefore, international comparisons with
+how other governments operate are often sought.
+
+There already exist many sources of data for international comparisons, which
+can be difficult for the leaders of civil services and public administrations
+to distil and understand how their country is performing. The purpose of the
+Blavatnik Index of Public Administration is to provide a coherent approach to
+using these existing data and to focus on the data most relevant to the
+operation of civil services and public administrations. Table 1 1 provides a
+comparison of the Blavatnik Index with other types of data available to
+officials for comparing how their civil service or public administration
+compares with others.
+
+The principal benefit of the Blavatnik Index of Public Administration is a tool
+that supports peer learning, by providing comparative analysis of data that
+senior officials and ministers that measures things they can directly act on.
+
+In the achievement of this goal the Index should be used to complement other
+sources of data and evidence in any exercise to understand how a country’s
+civil service or public administration is performing. In addition to other
+types of international comparisons (e.g. measuring economic, social or
+environmental outcomes), governments will have their own set of performance
+targets and outcome data that relates to their specific political goals and
+takes account of their particular context.
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-indicator-types
+#| tbl-cap: >
+#|   Comparison of other types of data sources for international benchmarking
+#|   of national governments and public administrations
+
+source("R/out_table.R")
+
+create_bullets <- function(x) {
+  if (knitr::is_html_output() || interactive()) {
+    out <- x |>
+      dplyr::summarise(
+        examples = paste0("- ", example, collapse = "\n\n"),
+        .by = type_id
+      )
+  } else if (knitr::is_latex_output()) {
+    out <- x |>
+      dplyr::summarise(
+        examples = paste0("• ", example, collapse = "\n\n"),
+        .by = type_id
+      )
+  } else {
+    stop("Can't create list")
+  }
+  return(out)
+}
+
+base_types <- tibble::tibble(
+  type_id = c("gov_ind", "thm_ind", "dat_col"),
+  source_type = c(
+    "Governance indices",
+    "Thematic indices",
+    "Regular data collections"
+  ),
+  comment = c(
+    paste(
+      "In addition to assessments of the executive branch of government these",
+      "indices tend to include assessments of: the legislative and judicial",
+      "branches; the nature of democracy and political institutions; media,",
+      "academic and civil society freedoms; and, possibly, the achievement of",
+      "policy outcomes. Many of these additional aspects are outside the",
+      "direct influence of officials and are the result of political",
+      "choices/cultures."
+    ),
+    paste(
+      "These indices focus on a single topic of interest. As a result, they",
+      "either focus on a narrow aspect of the activities of government or only",
+      "a small subset of its data directly measures activities or",
+      "characteristics of civil services and public administrations."
+    ),
+    paste(
+      "Like thematic indices these data collections often (but not always)",
+      "focus on a single topic of interest, however they may have no (or",
+      "multiple) headline measures rather than a single index. As with",
+      "thematic indices they either focus on a narrow aspect of government",
+      "or only a subset of its data is directly relevant to the management",
+      "and leadership of public administrations."
+    )
+  )
+)
+
+examples_table <- tibble::tribble(
+  ~type_id,
+  ~example,
+  "gov_ind",
+  "World Bank Worldwide Governance Indicators",
+  "gov_ind",
+  "Bertelsmann Transformation Index",
+  "gov_ind",
+  "Sustainable Governance Indicators",
+  "gov_ind",
+  "Chandler Good Government Index",
+  "thm_ind",
+  "Transparency International Corruption Perceptions Index",
+  "thm_ind",
+  "World Justice Project Rule of Law Index",
+  "thm_ind",
+  "OECD iREG Index",
+  "dat_col",
+  "European Commission eGovernment Benchmark Report",
+  "dat_col",
+  "UN’s Sendai Framework Monitoring",
+  "dat_col",
+  "Quality of Government Institute Expert Survey",
+  "dat_col",
+  "International Survey of Revenue Administration"
+) |>
+  create_bullets()
+
+x <- base_types |>
+  dplyr::left_join(examples_table, by = "type_id") |>
+  dplyr::select(-type_id) |>
+  gt::gt(groupname_col = "source_type", row_group_as_column = TRUE) |>
+  gt::cols_label(
+    source_type ~ "Types of comparative source",
+    comment ~ "Comment",
+    examples ~ "Examples"
+  ) |>
+  gt::cols_width(
+    source_type ~ gt::pct(20),
+    comment ~ gt::pct(50),
+    examples ~ gt::pct(30)
+  ) |>
+  render_bullets(examples) |>
+  gt::tab_stubhead(label = "Types of comparative source") |>
+  out_table()
+
+x
+```
+
+:::

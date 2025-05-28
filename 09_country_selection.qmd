@@ -1,0 +1,595 @@
+---
+format:
+  html:
+    subtitle: | 
+      How we assess country data coverage and use this to determine the
+      countries in the final Index.
+    fig-width: 7
+    fig-height: 7
+  pdf:
+    fig-width: 6
+    fig-height: 6
+source_document: https://index.bsg.ox.ac.uk/posts/country_selection/
+params:
+  math: true
+order: 109
+---
+
+# Data coverage and country selection {#sec-country_selection}
+
+```{r}
+#| label: setup
+#| echo: false
+#| include: false
+
+library(ggplot2)
+source("R/out_table.R")
+
+bipa_dqc <- readr::read_rds(file.path("data", "bipa2024_dqc_full.rds"))
+bipa_results <- readr::read_csv(file.path("data", "bipa2024_all_data.csv"))
+cc_ref <- readr::read_csv(file.path("data", "entity_codes.csv"))
+cc_geo <- readr::read_csv(file.path("data", "entity_georegions.csv"))
+cc_wb <- readr::read_csv(file.path("data", "entity_wb_classification23.csv"))
+cc_wdi <- readr::read_csv(file.path("data", "wb_wdi_2024.csv"))
+
+cc_pop <- cc_wdi |>
+  dplyr::filter(variable == "wb_pop_total") |>
+  dplyr::filter(ref_year == max(ref_year), .by = cc_iso3c) |>
+  dplyr::mutate(
+    pop_group = dplyr::case_when(
+      value < 5e6 ~ "(1) Less than 5 million",
+      value < 10e6 ~ "(2) 5 million to 10 million",
+      value < 25e6 ~ "(3) 10 million to 25 million",
+      value < 50e6 ~ "(4) 25 million to 50 million",
+      value >= 25e6 ~ "(5) 50 million or greater",
+    )
+  ) |>
+  dplyr::select(cc_iso3c, pop_value = value, pop_group)
+
+cc_meta <- cc_ref |>
+  dplyr::left_join(cc_geo, by = "cc_iso3c") |>
+  dplyr::left_join(cc_wb, by = "cc_iso3c") |>
+  dplyr::left_join(cc_pop, by = "cc_iso3c") |>
+  dplyr::filter(cc_iso3c != "ATA")
+```
+
+Any analytical exercise needs to carefully consider the quality of its data,
+this is particularly important when combining data from different data sources.
+This section explores country data quality, in particular data availability for
+countries, to determine inclusion in the Index’s calculations.
+
+Of the `r nrow(bipa_dqc$dq_data)` countries and territories which have data for
+at least one of the 86 metrics used for the global index, only one country
+(Mexico) has data for all 86 metrics, as a result an approach is needed to
+consider a country’s data coverage for determining its inclusion in the
+calculation of the Index.
+
+A simple approach for determining coverage would be to consider simply the total
+number of metrics a country has data for ($m_c$) as a proportion of the total
+number of possible metrics ($M$).
+
+$$
+p_m = \frac{m_c}{M}
+$$
+
+However, this approach does not consider how a country’s data is spread across
+the structure of our conceptual framework and data model – a country with a
+higher proportion of metrics concentrated in fewer themes would do better on
+this simple measure than a country with a lower proportion of metrics spread
+across more themes. As described in section 6 missing data is not subject
+to imputation, good coverage of the data model is therefore an important
+consideration to ensure that the implicit estimate of missing data will come
+from “sibling” components in the data model.
+
+Based on the chi-square test we have developed an algorithm for assessing a
+country’s data availability. This algorithm assesses both the volume of metrics
+a country has as well as the spread of that data over the data model. For
+each country-theme combination, an information quotient is calculated as the
+square of the difference between the total number of metrics a country has for
+that theme ($m_{t,c}$) and the number of indicators a country has for that
+theme ($i_{t,c}$) divided by the overall number of indicators in that theme
+($i_t$). The overall data coverage score for a country ($Q_c$) is
+calculated as the sum of these country-theme information quotients adjusted for
+overall coverage across the themes, calculated as the number of themes a
+country has data for ($t_c$) divided by overall number of themes ($T$).
+
+
+$$
+    Q_c= \displaystyle\sum_{t=1}^{t_c} \frac{(m_{t,c}-i_{t,c}+1)^2}{i_t}
+$$
+
+Having calculated the data coverage algorithm, we can set criteria to determine
+inclusion in the calculation of the Index and its components. Two principal
+criteria were selected :
+
+- The overall data coverage score ($Q_c$) is greater than or equal to half its
+  theoretical maximum value (i.e. the score a country would achieve if it has
+  data for all metrics). The maximum data coverage score is
+  `r scales::number(bipa_dqc$dq_ref$x_a, 0.01)`, the threshold value is
+  therefore `r scales::number(bipa_dqc$threshold_q, 0.01)`.
+- While the overall score does take into consideration the number of metrics,
+  the overall percentage of metrics a country has ($p_m$) is also retained as
+  a secondary threshold. It was decided to only include countries and
+  territories with at least 2/3rds of overall metrics.
+
+These criteria give rise to a selection of `r bipa_dqc$n_countries` countries
+and territories[^hkg].
+
+The inclusion criteria provide a binary state of whether countries are included
+or not however we can also devise a grading scheme using the same measures
+to determine inclusion to give a better sense of an individual country’s data
+coverage. For countries and territories above thresholds for inclusion in the
+Index the lower quartile, median and upper quartile of their data coverage score
+and percentage of metrics are used to define the boundaries for the first four
+grades (A-D); for countries and territories below the thresholds for inclusion
+in the Index the median of their data coverage score and percentage of metrics
+is used to define the boundary between the fifth and sixth grade (E-F). The
+following tables provide summarises of data coverage metrics: 
+@tbl-dq_grades by grade; @tbl-dq_by_groups by regional, economic and
+population groupings. Full data coverage metrics for all countries and
+territories are provided in @tbl-dq_included and @tbl-dq_not_included.
+
+```{r}
+#| label: tbl-dq_grades
+#| tbl-cap: Summary of data coverage metrics by grade
+
+dq_grade_summary <- tibble::tibble(
+  grade = names(bipa_dqc$dq_grade_thresholds$q_thresholds),
+  x_a = bipa_dqc$dq_grade_thresholds$q_thresholds,
+  p_m = bipa_dqc$dq_grade_thresholds$m_thresholds
+) |>
+  dplyr::arrange(grade) |>
+  dplyr::full_join(
+    bipa_dqc$dq_data |>
+      dplyr::mutate(
+        dq_grade = dplyr::if_else(cc_iso3c == "HKG", "E", dq_grade)
+      ) |>
+      dplyr::count(grade = dq_grade),
+    by = "grade"
+  ) |>
+  dplyr::add_row(
+    grade = "Ungraded (no data)",
+    n = nrow(cc_ref) - nrow(bipa_dqc$dq_data)
+  ) |>
+  dplyr::mutate(
+    across(c(x_a, p_m), ~ tidyr::replace_na(.x, 0)),
+    criteria_marker = dplyr::case_when(
+      grade %in% LETTERS[1:5] ~ "≥",
+      grade == "F" ~ ">",
+      TRUE ~ "="
+    ),
+    criteria = glue::glue(
+      "Q<sub>c</sub> {criteria_marker} {scales::number(x_a, 0.01)}, ",
+      "p<sub>m</sub> {criteria_marker} {scales::percent(p_m, 0.01)}",
+      sep = " "
+    ),
+    criteria = gsub("0.00", "0", criteria),
+    group = dplyr::if_else(
+      grade %in% LETTERS[1:4],
+      "Countries included in the index",
+      "Countries and territories not included in the index"
+    )
+  ) |>
+  dplyr::select(group, grade, criteria, n)
+
+gt::gt(dq_grade_summary, groupname_col = "group") |>
+  gt::fmt_markdown(criteria) |>
+  gt::cols_label(
+    grade = "Data coverage grade",
+    criteria = "Data coverage thresholds",
+    n = "Number of countries"
+  ) |>
+  gt::tab_footnote(
+    footnote = gt::md(paste(
+      "Q<sub>c</sub> is the data coverage score, p<sub>m</sub> is the percent",
+      "of total metrics"
+    )),
+    locations = gt::cells_column_labels(columns = criteria)
+  ) |>
+  gt::tab_footnote(
+    footnote = gt::md(paste(
+      "Hong Kong included in many of the source datasets used by the Index and",
+      "has Q<sub>c</sub> and p<sub>m</sub> scores equivalent to grade D. As a",
+      "territory of China, Hong Kong is not included in the Blavatnik Index,",
+      "therefore it has been included in this summary table in the total number",
+      "of countries for grade E."
+    )),
+    locations = gt::cells_body(columns = grade, rows = grade == "E")
+  ) |>
+  {
+    \(x) {
+      if (knitr::is_latex_output()) {
+        x$`_data`$criteria <- gsub("≥", ">=", x$`_data`$criteria, perl = TRUE)
+        x$`_data`$criteria <- gsub(
+          "</?sub>",
+          "",
+          x$`_data`$criteria,
+          perl = TRUE
+        )
+        x$`_footnotes`$footnotes <- gsub(
+          "</?sub>",
+          "",
+          x$`_footnotes`$footnotes,
+          perl = TRUE
+        )
+        return(x)
+      } else {
+        return(x)
+      }
+    }
+  }() |>
+  out_table()
+
+```
+
+```{r}
+#| label: tbl-dq_by_groups
+#| tbl-cap: Summary of country coverage by groupings
+
+dq_data_groups <- bipa_dqc$dq_data |>
+  dplyr::full_join(cc_meta, by = "cc_iso3c") |>
+  dplyr::mutate(
+    sum_group = dplyr::case_when(
+      included ~ "all_included",
+      cc_status == "UN member" ~ "not1_un",
+      TRUE ~ "not2_oth"
+    )
+  )
+
+dq_cc_groups <- dplyr::bind_rows(
+  dq_data_groups |>
+    dplyr::summarise(
+      agg_group = "0_all",
+      agg_cat = "All countries and territories",
+      n = dplyr::n(),
+      .by = sum_group
+    ),
+  dq_data_groups |>
+    dplyr::summarise(
+      agg_group = "1_region",
+      n = dplyr::n(),
+      .by = c(bipa_region, sum_group)
+    ) |>
+    dplyr::arrange(bipa_region) |>
+    dplyr::rename(agg_cat = bipa_region),
+  dq_data_groups |>
+    dplyr::summarise(
+      agg_group = "2_income",
+      n = dplyr::n(),
+      .by = c(income_group, sum_group)
+    ) |>
+    dplyr::arrange(income_group) |>
+    dplyr::rename(agg_cat = income_group),
+  dq_data_groups |>
+    dplyr::summarise(
+      agg_group = "3_population",
+      n = dplyr::n(),
+      .by = c(pop_group, sum_group)
+    ) |>
+    dplyr::arrange(pop_group) |>
+    dplyr::mutate(pop_group = gsub("^\\(\\d\\) ", "", pop_group)) |>
+    dplyr::rename(agg_cat = pop_group)
+) |>
+  tidyr::pivot_wider(names_from = sum_group, values_from = n) |>
+  dplyr::mutate(
+    agg_cat = dplyr::case_when(
+      is.na(agg_cat) & agg_group == "2_income" ~
+        "No World Bank income classification",
+      is.na(agg_cat) & agg_group == "3_population" ~ "No population data",
+      TRUE ~ agg_cat
+    ),
+    agg_cat = forcats::as_factor(agg_cat)
+  ) |>
+  dplyr::select(agg_group, agg_cat, all_included, not1_un, not2_oth)
+
+dq_cc_groups |>
+  gt::gt(rowname_col = "agg_cat") |>
+  gt::tab_row_group(
+    label = "",
+    rows = agg_group == "0_all",
+    id = "0_all"
+  ) |>
+  gt::tab_row_group(
+    label = "Geographic region",
+    rows = agg_group == "1_region",
+    id = "1_region"
+  ) |>
+  gt::tab_row_group(
+    label = "Income group (World Bank, 2023)",
+    rows = agg_group == "2_income",
+    id = "2_income"
+  ) |>
+  gt::tab_row_group(
+    label = "Population size (World Bank, 2022)",
+    rows = agg_group == "3_population",
+    id = "3_population"
+  ) |>
+  gt::row_group_order(c("0_all", "1_region", "2_income", "3_population")) |>
+  gt::cols_hide(agg_group) |>
+  gt::cols_label(
+    all_included ~ "Countries included in the Index",
+    not1_un ~ "UN members not included",
+    not2_oth ~ "Other entities not included"
+  ) |>
+  gt::tab_footnote(
+    footnote = paste(
+      "Other entities includes countries that are not UN members,",
+      "dependent and other territories of other countries, disputed countries",
+      "and territories, or those with limited recognition."
+    ),
+    locations = gt::cells_column_labels(columns = not2_oth)
+  ) |>
+  gt::sub_missing() |>
+  gt::cols_align(align = "left", columns = agg_cat) |>
+  gt::cols_width(
+    agg_cat ~ gt::pct(40),
+    all_included ~ gt::pct(20),
+    not1_un ~ gt::pct(20),
+    not2_oth ~ gt::pct(20)
+  ) |>
+  out_table()
+
+```
+
+As shown in @fig-dq_scatter, while closely correlated there is a slightly
+non-linear relationship between the data coverage score and the percent of
+metrics measures, this is expected since the data coverage score applies a
+penalty for a country not having complete data across the measurement framework.
+
+```{r}
+#| label: fig-dq_scatter
+#| fig-cap: >
+#|   Scatter plot of data coverage measures for all countries and territories
+#| warning: false
+#| dev: ragg_png
+ggplot(bipa_dqc$dq_data, aes(x = p_m, y = x_a, colour = dq_grade)) +
+  geom_hline(
+    yintercept = bipa_dqc$dq_ref$x_a / 2,
+    colour = "#999999",
+    linetype = "dashed",
+    linewidth = 0.5
+  ) +
+  geom_vline(
+    xintercept = 2 / 3,
+    colour = "#999999",
+    linetype = "dashed",
+    linewidth = 0.5
+  ) +
+  geom_abline(
+    slope = 161,
+    intercept = 0,
+    colour = "#cccccc",
+    linewidth = 0.25
+  ) +
+  geom_point(alpha = 0.5) +
+  annotate(
+    geom = "label",
+    x = 0.01,
+    y = 81.5,
+    label = expression(Q[c] ~ "= 80.54"),
+    colour = "#999999",
+    family = "Open Sans",
+    size = 3,
+    fontface = "italic",
+    label.size = 0,
+    hjust = 0,
+    vjust = 0
+  ) +
+  annotate(
+    geom = "label",
+    x = 0.68,
+    y = 1,
+    label = expression(p[m] ~ "= 66.7%"),
+    colour = "#999999",
+    family = "Open Sans",
+    size = 3,
+    fontface = "italic",
+    label.size = 0,
+    hjust = 0,
+    vjust = 0
+  ) +
+  scale_colour_brewer(
+    palette = "Dark2",
+    guide = guide_legend(title = "Data coverage\ngrade", position = "bottom")
+  ) +
+  scale_x_continuous(
+    limits = c(0, 1),
+    expand = expansion(add = 0.02)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 162),
+    expand = expansion(add = 2)
+  ) +
+  coord_fixed(ratio = 1 / bipa_dqc$dq_ref$x_a) +
+  labs(
+    y = expression(Data ~ coverage ~ score ~ (Q[c])),
+    x = expression(Percent ~ of ~ metrics ~ (p[m])),
+    alt = paste(
+      "A scatter plot of the percent of total metrics (on the horizontal axis)",
+      "against the data coverage score (on the vertical axis),",
+      "with point colour varying by data coverage grade."
+    )
+  ) +
+  theme_minimal(base_family = "Open Sans") +
+  theme(
+    panel.grid.minor = element_blank()
+  )
+
+```
+
+There is no statistically significant correlation between a country's overall
+score in the Blavatnik Index and either its data coverage score or the percent
+of metrics it has data for. However, as @fig-dq_correl shows, there does appear
+a relationship between the minimum score for the Blavatnik Index and the
+data coverage score[^min_corel], which is likely a function of the data normalisation
+process that results in country scores becoming relative measures between 0 and
+1.
+
+```{r}
+#| label: fig-dq_correl
+#| fig-cap: >
+#|   Scatter plot of the data coverage score and Blavatnik Index score
+#| warning: false
+#| dev: ragg_png
+dq_index <- bipa_results |>
+  dplyr::filter(structure_id == 0) |>
+  dplyr::left_join(
+    bipa_dqc$dq_data |> dplyr::select(cc_iso3c, x_a, p_m, dq_grade),
+    by = "cc_iso3c"
+  )
+
+ggplot(dq_index, aes(x = x_a, y = value, colour = dq_grade)) +
+  geom_point(alpha = 0.5) +
+  scale_colour_brewer(
+    palette = "Dark2",
+    guide = guide_legend(title = "Data coverage\ngrade", position = "bottom")
+  ) +
+  scale_x_continuous(
+    limits = c(80, 162),
+    expand = expansion(add = 2)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    expand = expansion(add = 0.02)
+  ) +
+  coord_fixed(ratio = bipa_dqc$dq_ref$x_a / 2) +
+  labs(
+    x = expression(Data ~ coverage ~ score ~ (Q[c])),
+    y = "Blavatnik Index score",
+    alt = paste(
+      "A scatter plot of data coverage scores (on the horizontal axis)",
+      "against Blavatnik Index scores (on the vertical axis),",
+      "with point colour varying by data coverage grade."
+    )
+  ) +
+  theme_minimal(base_family = "Open Sans") +
+  theme(
+    panel.grid.minor = element_blank()
+  )
+```
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-dq_included
+#| tbl-cap: >
+#|   Data coverage metadata for countries included in the Blavatnik Index of
+#|   public administration 2024
+
+dq_all_entities <- cc_meta |>
+  dplyr::left_join(
+    bipa_dqc$dq_data,
+    by = "cc_iso3c"
+  ) |>
+  dplyr::mutate(
+    cc_status = dplyr::case_when(
+      grepl("^Other", cc_status) ~ "Other ISO 3166-1 entity",
+      grepl("^User", cc_status) ~ "Not an ISO 3166-1 entitty",
+      TRUE ~ cc_status
+    )
+  ) |>
+  dplyr::select(
+    cc_name_short,
+    cc_iso3c,
+    cc_status,
+    bipa_region,
+    income_group,
+    dq_grade,
+    x_a,
+    p_m,
+    included
+  )
+
+dq_all_entities |>
+  dplyr::filter(included) |>
+  dplyr::arrange(cc_name_short, .locale = "en_GB") |>
+  gt::gt() |>
+  gt::cols_hide(included) |>
+  gt::cols_label(
+    cc_name_short = "Country",
+    cc_iso3c = "Code",
+    cc_status = "Status",
+    bipa_region = "Region",
+    income_group = "Income group",
+    dq_grade = "Grade",
+    x_a = "Score",
+    p_m = "% metrics"
+  ) |>
+  gt::tab_spanner(
+    label = "Data coverage",
+    columns = c(dq_grade, x_a),
+    id = "dq"
+  ) |>
+  gt::fmt_number(x_a) |>
+  gt::fmt_percent(p_m, decimals = 1) |>
+  gt::cols_align("center", dq_grade) |>
+  gt::tab_options(
+    table.width = gt::px(1000),
+    container.height = 600,
+    latex.use_longtable = TRUE
+  ) |>
+  out_table()
+
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-dq_not_included
+#| tbl-cap: >
+#|   Data coverage metadata for countries and territories not included in the
+#|   Blavatnik Index of public administration 2024
+
+dq_all_entities |>
+  dplyr::filter(is.na(included) | !included) |>
+  dplyr::arrange(cc_name_short, .locale = "en_GB") |>
+  gt::gt() |>
+  gt::cols_hide(included) |>
+  gt::cols_label(
+    cc_name_short = "Country/Territory",
+    cc_iso3c = "Code",
+    cc_status = "Status",
+    bipa_region = "Region",
+    income_group = "Income group",
+    dq_grade = "Grade",
+    x_a = "Score",
+    p_m = "% metrics"
+  ) |>
+  gt::tab_spanner(
+    label = "Data coverage",
+    columns = c(dq_grade, x_a),
+    id = "dq"
+  ) |>
+  gt::fmt_number(x_a) |>
+  gt::fmt_percent(p_m, decimals = 1) |>
+  gt::sub_missing() |>
+  gt::cols_align("center", dq_grade) |>
+  gt::tab_options(
+    table.width = gt::px(1000),
+    container.height = 600,
+    latex.use_longtable = TRUE
+  ) |>
+  out_table()
+
+```
+
+:::
+
+```{r}
+#| label: hkg_dq
+#| echo: false
+hkg_dq <- bipa_dqc$dq_data |> dplyr::filter(cc_iso3c == "HKG")
+```
+
+[^hkg]: Hong Kong appears separately in many of the data sources used to
+  calculate the Blavatnik Index and while it was above the thresholds for
+  inclusion with a data coverage score of `{r} scales::number(hkg_dq$x_a, 0.01)`
+  and `{r} scales::percent(hkg_dq$p_m, 0.1)` of total metrics, it has not been
+  included as it is a territory of China rather than a separate national
+  entity. As a result in @tbl-dq_grades, Hong Kong has been included in grade
+  E, however Hong Kong's underlying data coverage metrics are equivalent to
+  other countries classified as grade D.
+
+[^min_corel]: This effect is also apparent when looking at the percent of total metrics.

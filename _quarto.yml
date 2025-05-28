@@ -1,0 +1,71 @@
+project:
+  type: book
+  pre-render: R/get_data.R
+  post-render: R/post_render.R
+
+execute: 
+  echo: false
+
+book:
+  title: "Blavatnik Index of Public Administration 2024: Methodology"
+  subtitle: |
+    A guide to the principles, methods and sources used to produce the
+    Blavatnik Index of Public Administration 2024
+  author: "Blavatnik School of Government"
+  date: "2024-12-04"
+  image: "images/bipa_icon.png"
+  cover-image: "images/bipa2024_methodology_cover.jpg"
+  downloads: [pdf, epub]
+  license: CC-BY
+  chapters:
+    - index.qmd
+    - 01_background.qmd
+    - 02_framework.qmd
+    - 03_data_model_principles.qmd
+    - 04_conceptual_scope.qmd
+    - 05_geographic_scope.qmd
+    - 06_source_selection.qmd
+    - 07_source_processing.qmd
+    - 08_source_alignment.qmd
+    - 09_country_selection.qmd
+    - 10_data_aggregation.qmd
+    - 11_sensitivity_analysis.qmd
+  appendices:
+    - 99_01_geographic_entities.qmd
+    - 99_02_implied_weighting.qmd
+    - 99_03_preprocessing.qmd
+    - 99_04_rescaling_transformation.qmd
+    - 99_99_references.qmd
+
+bibliography: bipa2024_references.bib
+
+number-depth: 2
+fig-cap-location: top
+tbl-cap-location: top
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    html-table-processing: none
+  pdf:
+    sansfont: "Jost"
+    sansfontoptions:
+      - Color=00619E
+    mainfont: "Open Sans"
+    fontsize: "9pt"
+    documentclass: scrreprt
+    papersize: a4paper
+    lof: true
+    lot: true
+    geometry:
+      - top=25mm
+      - bottom=20mm
+      - left=20mm
+      - right=20mm
+      - heightrounded
+  epub: default
+
+
+

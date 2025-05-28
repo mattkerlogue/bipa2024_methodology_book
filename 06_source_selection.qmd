@@ -1,0 +1,404 @@
+---
+format:
+  html:
+    subtitle: | 
+      How we have selected sources for inclusion in the Blavatnik Index of Public
+      Administration.
+source_document: https://index.bsg.ox.ac.uk/posts/source_selection/
+order: 106
+---
+
+# Selection of data sources {#sec-source_selection}
+
+The Blavatnik Index of Public Administration is based on data from 17 different
+sources. This section describes the approach to selecting those sources and how
+the source data is processed and extracted.
+
+A scoping exercise was undertaken in early 2024 to identify potential sources
+for the Index, the following criteria were used to determine eligibility:
+
+- **Open access** – the data source and its methodology must be published online
+  in a free-to-access form.
+- **Actionable** – the data must measure some quality or component of public
+  administration that officials and/or ministers can act on to improve
+  performance.
+- **Quantifiable** – if not already directly numeric, the data must be easily
+  quantifiable.
+- **Recency** – the source should have been updated since 2019.
+
+## Selection criteria
+
+The ideal for the open access criterion is a data source that publishes not
+only its high-level results but also the raw scores for a country and its
+methodology. Many but not all sources used in the Blavatnik Index meet this
+requirement, some sources do not publish raw scores for countries but do publish
+an overall score and sometimes intermediate scores but alongside this publish
+a full methodology that allows for external scrutiny of how countries are
+assessed.
+
+The open access criterion is designed to support the second criterion, that the
+data must be actionable. Whether data is actionable is considered in two ways:
+conceptually and practically. Data is conceptually actionable if it measures
+something that we can expect government officials or ministers to respond
+to. Data is practically actionable if government officials or ministers can
+determine how their country scores and respond accordingly.
+
+The Blavatnik Index of Public Administration is by its nature a quantitative
+exercise, data must therefore either be already quantitative in nature or
+be measured in such a way that it is easy (and sensible) to coerce into a
+quantitative form, for example the conversion of an ordinal scale into a
+numeric range or summing related binary (yes/no) categories.
+
+Only a few of the data sources used by the Blavatnik Index of Public
+Administration are updated annually, some are updated biennially and others on
+slower timescales. While the Blavatnik Index of Public Administration is not
+directly comparable to the previous InCiSE Index, it was decided to only include
+data sources that had been updated or published after the publication of the
+2019 edition of the InCiSE Index.
+
+## Data source discovery and scoping exercise
+
+The scoping exercise considered 36 potential sources and 18 are used in the
+calculation of the Blavatnik Index of Public Administration 2024. Table 3
+1 provides a list of the sources used, and considered but not used, in the
+Blavatnik Index of Public Administration.
+
+Initially, the scoping exercise identified these sources for consideration
+by reviewing the status of sources used for the InCiSE Index’s 2017 and 2019
+editions as well as reviewing other datasets and outputs published by the same
+institutions since the 2019 report. The exercise also reviewed the European
+Joint Research Centre’s Composite Indicators and Scorecards Explorer that might
+be of relevance to public administration and reviewing both these products
+themselves and their sources.
+
+When considering indexes and composite indicators which combine data from
+other sources the scoping exercise would to identify the original sources.
+For example, reviewing sources published by the World Bank identified the
+Statistical Performance Indicators, further review of this product’s sources
+identified Open Data Watch’s Open Data Inventory and the OECD’s PARIS21
+indicators as original sources for review.
+
+In the initial scoping exercise sources were considered if they had either a
+global focus or, like InCiSE 2019, were limited to OECD/EU members. Following
+the scoping exercise, it was determined that there was sufficient data to enable
+a global index to be produced.
+
+```{r}
+#| label: tbl-sources-reviewed
+#| tbl-cap: Sources reviewed for the Blavatnik Index oof Public Administration 2024
+
+source("R/out_table.R")
+
+create_bullets <- function(x) {
+  if (knitr::is_html_output() || interactive()) {
+    out <- x |>
+      dplyr::summarise(
+        source_list = paste0("- ", source_name, collapse = "\n"),
+        .by = source_class
+      )
+  } else if (knitr::is_latex_output()) {
+    out <- x |>
+      dplyr::summarise(
+        source_list = paste0("• ", source_name, collapse = "\n\n"),
+        .by = source_class
+      )
+  } else {
+    stop("Can't create list")
+  }
+  return(out)
+}
+
+tibble::tribble(
+  ~source_class, ~source_name,
+  "included_incise", "Doing Business Report (World Bank)",
+  "included_incise", "Gender Statistics Database (European Institute for Gender Equality)",
+  "included_incise", "Global Corruption Barometer (Transparency International)",
+  "included_incise", "Global Data Barometer (D4D.net and ILDA)",
+  "included_incise", "ILOSTAT (International Labor Organization)",
+  "included_incise", "International Survey of Revenue Administration (CIAT, IMF, IOTA, and OECD)",
+  "included_incise", "Open Budget Survey (International Budget Partnership)",
+  "included_incise", "Quality of Government Expert Survey (University of Gothenburg)",
+  "included_incise", "Rule of Law Index (World Justice Project)",
+  "included_incise", "Sendai Framework Monitor (United Nations)",
+  "included_incise", "Sustainable Governance Indicators (Bertelsmann Stiftung)",
+  "included_incise", "Varieties of Democracy dataset (University of Gothenburg)",
+  "included_new", "Bertelsmann Transformation Index (Bertelsmann Stiftung)",
+  "included_new", "Global Cybersecurity Index (International Telecommunications Union)",
+  "included_new", "GovTech Maturity Index (World Bank)",
+  "included_new", "Logistics Performance Index (World Bank)",
+  "included_new", "Open Data Inventory (Open Data Watch)",
+  "included_new", "PARIS21 Statistical Capacity Monitor (OECD)",
+  "excluded_oecd_eu", "Digital Government Index (OECD)",
+  "excluded_oecd_eu", "eGovernment Benchmark Report (European Commission)",
+  "excluded_oecd_eu", "Indicators of Regulatory Policy and Governance (OECD)",
+  "excluded_oecd_eu", "OUR Data Index (OECD)",
+  "excluded_oecd_eu", "Public Integrity Indicators (OECD)",
+  "excluded_oecd_eu", "Public Service Leadership and Capability Survey (OECD)",
+  "excluded_oecd_eu", "OpenTender and Global Public Procurement Dataset (Government Transparency Institute)",
+  "excluded_global", "Corruption Perceptions Index (Transparency International)",
+  "excluded_global", "E-Government Development Index (United Nations)",
+  "excluded_global", "Global Innovation Index (World Intellectual Property Organisation)",
+  "excluded_global", "Global Survey of Public Servants",
+  "excluded_global", "OECD Budgeting Databases (OECD)",
+  "excluded_global", "Open Budget Survey (International Budget Partnership)",
+  "excluded_global", "Worldwide Governance Indicators (World Bank)",
+  "not_updated", "Dataset on Public Procurement (OECD)",
+  "not_updated", "FMIS and OBD dataset (World Bank)",
+  "not_updated", "Global Competitiveness Report Executive Opinion Survey (World Economic Forum)",
+  "not_updated", "Global Open Data Index (Open Knowledge Foundation)",
+  "not_updated", "Survey of Adult Skills/Programme for the International Assessment of Adult Competencies (PIAAC) (OECD)",
+  "not_updated", "Survey on the Governance of Critical Risks (OECD)",
+) |>
+  create_bullets() |>
+  dplyr::mutate(
+    source_class = dplyr::case_match(
+      source_class,
+      "included_incise" ~ "Sources used in the Blavatnik Index of Public Administration 2024 and in the InCiSE Index 2019",
+      "included_new" ~ "Sources used in the Blavatnik Index of Public Administration 2024 but not in the InCiSE Index 2019",
+      "excluded_oecd_eu" ~ "Source covering only OECD/EU countries and not included in the the Blavatnik Index of Public Administration 2024",
+      "excluded_global" ~ "Sources with global coverage but not included in the Blavatnik Index of Public Administration 2024",
+      "not_updated" ~ "Sources used in the InCiSE Index 2019 but not updated"
+    )
+  ) |>
+  gt::gt(groupname_col = "source_class", row_group_as_column = TRUE) |>
+  gt::cols_label(
+    source_class ~ "Source grouping",
+    source_list ~ "Data sources"
+  ) |>
+  gt::cols_width(source_class ~ gt::pct(25), source_list ~ gt::pct(75)) |>
+  gt::tab_stubhead(label = "Source grouping") |>
+  render_bullets(source_list) |>
+  out_table()
+
+```
+
+## Sources used in InCiSE 2019 and the Blavatnik Index
+
+There are 12 sources which were used in the InCiSE 2019 Index and which have
+been selected for inclusion in the Blavatnik Index of Public Administration
+2024:
+
+- The World Bank’s Doing Business report collected a range of measures relating
+  to the ability to start and continue a business in 190 different countries
+  and territories. One of these measures is an estimate of the time in a given
+  year it takes businesses to file and pay taxes. This measure was used by
+  InCiSE 2019 and has been retained. The Doing Business report was discontinued
+  in 2020 and is being replaced by a new product called Business Ready but this
+  was not available at the time of scoping and production of the Blavatnik
+  Index of Public Administration.
+- The European Institute for Gender Equality’s Gender Statistics Database is
+  used by the OECD as the source for an indicator in its Government at a Glance
+  publication on the representation of women in senior levels of government,
+  which was used by InCiSE 2019. For the Blavatnik Index of Public
+  Administration we have sourced data directly from the EIGE’s database.
+- Transparency International’s Global Corruption Barometer is a public opinion
+  survey that collects data on public perceptions and experiences of corruption
+  and bribery. One measure within the survey is the perception of how many
+  government officials are involved in corruption, this was used by InCiSE 2019
+  and has been retained.
+- The Global Data Barometer is published by the Data for Development Network
+  and ILDA, that measures the range and nature of “data for public good” across
+  topics including climate, company information, health, land, political
+  integrity, public finance and public procurement, it also seeks to measure
+  data governance and data capability. The Barometer is a successor to World
+  Wide Web Foundation’s Open Data Barometer which was used in InCiSE 2019.
+- The International Labor Organization’s ILOSTAT service aggregates official
+  statistics from around the world on labour market matters, includes public
+  sector employment. Measures on the public sector employment by sex from
+  ILOSTAT were used in InCiSE 2019 and have been retained.
+- The International Survey of Revenue Administration is a joint exercise of the
+  Inter-American Center of Tax Administrators, the International Monetary Fund,
+  the Intra-European Organisation of Tax Administrators and the OECD. The ISORA
+  is used by the OECD to compile its Tax Administration Series, which was used
+  by InCiSE 2019.
+- The University of Gothenburg’s Quality of Government Expert Survey was used
+  by InCiSE 2019 as a source of measures relating to HR management and
+  integrity, some of these measures are now included within the dataset
+  produced by the University of Gothenburg’s Varieties of Democracy project.
+- The World Justice Project’s Rule of Law Index is produced from a mix of
+  public and expert perception surveys about the rule of law and the operation
+  of justice including measures relating to administrative procedures and
+  public integrity. This was used by InCiSE 2019 and has been retained.
+- The United Nation’s Sendai Framework Monitor monitors countries adoption and
+  adherence to the Sendai Framework for Action on natural disaster risk
+  reduction. The Sendai Framework is the successor to the Hyogo Framework for
+  Action, monitor data for which was included in InCiSE 2019.
+- The Bertelsmann Stiftung’s Sustainable Governance Indicators measure a number
+  of facets of governance including policy outcomes, the quality of democracy,
+  and good governance. Several of its measures relating to the government
+  executives and public administration were used by InCiSE 2019, some of which
+  have been retained and matched with similar measures in the Bertelsmann
+  Transformation Index.
+
+## Sources used by the Blavatnik Index but not used by InCiSE 2019
+
+There are 6 sources which were not used by the InCiSE 2019 Index but which have
+been identified for inclusion in the Blavatnik Index of Public Administration
+2024:
+
+- The Bertelsmann Stiftung’s Bertelsmann Transformation Index is similar to
+  the Sustainable Governance Indicators which were used by InCiSE 2019 but
+  covers non-OECD/EU countries and so was not included in InCiSE 2019. Measures
+  relating to government executives and public administration have been
+  included in the 2024 Index.
+- The International Telecommunication’s Global Cybersecurity Index measures
+  country’s developments in cybersecurity defences and capability across five
+  pillars (legal measures, technical measures, organizational measures, capacity
+  development and cooperation).
+- The World Bank’s GovTech Maturity Index measures countries’ efforts in the
+  digital transformation of the public sector, it assesses core policies and
+  technologies, the provision of digital public services, the use of digital
+  methods for citizen engagement, and policies and practices to support digital
+  innovation and transformation.
+- The World Bank’s Logistics Performance Index includes a survey of
+  international logistics operators on their experiences of trade and shipping,
+  including measures relating to the efficiency and ease of completing customs
+  obligations.
+- Open Data Watch’s Open Data Inventory is a biennial assessment of the
+  availability and coverage of official statistics across the domains of
+  economic, environmental and social statistics.
+- The Statistical Capacity Monitor produced by PARIS21 (a collaboration of
+  the UN, European Commission, OECD, IMF and World Bank; hosted by the OECD
+  secretariat) assesses countries’ capacities in regards official statistics,
+  it collates data from other indicators, including the Open Data Inventory
+  (see above), as well as some primary data collection. The Statistical
+  Capacity Monitor’s measure on the use of statistics in national policy
+  documents has been included in the 2024 Index.
+
+## Sources limited to OECD/EU member countries
+
+There are 8 sources limited to OECD/EU members that were either used by InCiSE
+2019 or are new and considered suitable for inclusion in a 2024 Index if it
+were limited to OECD/EU countries:
+
+- The OECD’s Digital Government Index provides an overview of government
+  policies and practices in digital government across six aspects: data-driven
+  public sector, digital by design, government as a platform, open by default
+  proactiveness, and user-driven. The Digital Government Index was first
+  published after InCiSE 2019.
+- The European Commission’s eGovernment Benchmark Report is a comprehensive
+  assessment of over 5,000 public sector websites in EU member and neighbouring
+  countries, it was used as a data source for InCiSE 2019.
+- The OECD’s Indicators of Regulatory Policy and Governance assess government’s
+  policies and practices in the development of legislation and regulations, it
+  was used as a data source for InCiSE 2019.
+- The OECD’s OUR Data Index assesses government’s policies and practices in the
+  publishing of open data, it was used as a data source for InCiSE 2019.
+- The OECD’s Public Integrity Indicators provide a range of public integrity
+  and anti-corruption measures including: information disclosure; open
+  government practices; conflict of interest, lobbyist transparency and
+  regulation, senior officials’ post-employment activities; and financial
+  control, risk management and internal audit. The Public Integrity Indicators
+  were first published after InCiSE 2019.
+- Measures collected via OECD’s Public Service Leadership and Capability Survey
+  have been published in its Government at a Glance report, including measures
+  relating to learning and development, gender diversity practices, employment
+  and recruitment frameworks, mobility and flexible working arrangements. The
+  Public Service Leadership and Capability Survey was first collected and
+  published after InCiSE 2020.
+- OpenTender is a project of the Government Transparency Institute first
+  developed under the EU’s Horizon 2020 research fund to provide analysis of
+  public procurement tender notices and contract data across EU members, with
+  a focus on integrity and anti-corruption. In April 2023, the Government
+  Transparency Institute published an expanded dataset (the Global Public
+  Procurement Dataset) based in part on the data from the OpenTender project
+  but expanded to also include data from Armenia, Bangladesh, Brazil, Colombia,
+  Georgia, Kenya, Indonesia, Paraguay, Uruguay and the United States.
+
+## Sources considered but not included
+
+There are 6 sources which were identified during the scoping exercise but
+following further review it was decided not to include:
+
+- Transparency International’s Corruption Perceptions Index (CPI) is a
+  composite index drawing on a large number of sources, some of which had
+  already identified for use in the Blavatnik Index of Public Administration,
+  as a result the CPI is not used. However, data from Transparency
+  International’s Global Corruption Barometer which measures public opinions
+  of corruption has been selected for inclusion.
+- The UN’s E-Government Development Index (EGDI) is regularly used as a
+  benchmark for international comparisons of governments’ progress in digital
+  government, however it fails to meet our eligibility for inclusion. While
+  high-level results are published for the EGDI overall and its sub-components,
+  the underlying questionnaire that is used to calculate the Index and/or
+  country scores to those questions are not. It is therefore not possible to
+  independently determine the criteria used to assess a country or to identify
+  how a country can improve its score in the EGDI.
+- The World Intellectual Property Organization’s Global Innovation Index (GII)
+  measures the innovative capacity of countries and economies. Innovation was
+  identified in the conceptual framework for the InCiSE 2017 and 2019 Indexes
+  but was not measured, it is also included in the conceptual framework for the
+  Blavatnik Index of Public Administration, therefore the Global Innovation
+  Index was reviewed as a potential source for metrics. The majority of the
+  Global Innovation Index’s metrics relate to private sector activity, its
+  public sector metrics were either: (i) measure something out of scope such as
+  policy goals (e.g. science graduates); (ii) already identified for use in the
+  Blavatnik Index of Public Administration (e.g. the Logistics Performance
+  Index); (iii) a source deemed out of scope (e.g. the World Bank’s Worldwide
+  Governance Indicators, see below); or (iv) a source that has been rejected
+  (e.g. the UN’s E-Government Development Index).
+- The Global Survey of Public Servants (GSPS), a collaboration of Stamford
+  University, University College London, University of Nottingham and the World
+  Bank, is a dataset that collates survey results from employee attitudes
+  surveys of officials working in central government organisations. The
+  dataset provides data from surveys conducted in 28 countries with some
+  results harmonised to one of 25 common concepts. Unlike other datasets
+  considered in the scoping exercise the country coverage does follow
+  regional/economic patterns (at least two countries are included from each
+  continent), coverage also varies considerably by topic and harmonisation
+  concept. Once filtering the results for data that only relates to 2019 or
+  later, no harmonised concept has data for more than 9 countries.
+- The OECD has collected a number of datasets relating to budgeting and
+  financial management practices, for example on gender budgeting, green
+  budgeting, spending reviews, these were reviewed for potential indicators.
+  While these datasets provide useful comparative information on budgeting and
+  financial management practices it was not deemed feasible to coerce this
+  information into numerical measures that could discern differing levels of
+  ‘performance’.
+- The World Bank’s Worldwide Governance Indicators (WGI) are a set of aggregate
+  indicators measuring six topics: voice and accountability; political
+  stability and absence of violence/terrorism; government effectiveness;
+  regulatory quality; rule of law; and, control of corruption. The WGIs make
+  use of a large array of sources, including many already identified for
+  inclusion in the Blavatnik Index of Public Administration. In addition to
+  this potential for “double counting”, there are two further limitations to
+  the WGIs:
+    1.  The source data for the WGIs is input to a statistical model to account
+        for missing data and to calculate the six aggregate scores, while the
+        methodology and weightings of this model are published it is not simple
+        for countries to determine how their scores in the source data relate to
+        their overall score and where to focus actions for improvement.
+    2.  Several of the sources are closed or proprietary in nature, while the
+        World Bank publishes overall country scores from these sources the
+        underlying methodology and/or “raw” scores are not readily available,
+        therefore making it difficult for countries to determine where to focus
+        actions for improvement.
+
+## Sources used in InCiSE 2019 but not updated
+There are sources which were used in InCiSE 2019 which have not been updated
+since that report was published:
+
+- The OECD’s Dataset on Public Procurement assessed the public procurement
+  policies and practices of central governments in OECD member countries.
+- The World Bank’s FMIS and OBD dataset provided information on the existence
+  of financial management information systems and the range of financial
+  management data that is published.
+- The World Economic Forum’s Global Competitiveness Report Executive Opinion
+  Survey was used for its measure on business opinions on the efficiency of
+  public spending. Since InCiSE 2019 the Global Competitiveness Report has been
+  discontinued, while an Executive Opinion Survey is to support the compilation
+  of the WEF’s Global Risks Report this does not cover the same information as
+  that used for the Global Competitiveness Report and is not published in a
+  similar format.
+- The Open Knowledge Foundation’s Global Open Data Index was used as one of
+  several measures relating to open data.
+- The OECD’s Survey on the Governance of Critical Risks was used to provide
+  metrics for InCiSE 2019’s measures on crisis and risk management, this
+  dataset has not been updated.
+- The OECD’s Survey of Adult Skills (Programme for the International Assessment
+  of Adult Competencies, PIAAC) provides measures of literacy, numeracy and
+  other skill levels and was used to provide metrics for InCiSE 2019’s measures
+  relating to staff capabilities. The experimental design for PIAAC envisages
+  it being repeated on a decadal basis, the second round of data collection has
+  been completed, but the results and data were yet published at the time of
+  data source scoping and production of the Index.

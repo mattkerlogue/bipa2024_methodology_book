@@ -1,0 +1,46 @@
+# Preface {.unnumbered}
+
+This is a replica of the methodology section of the
+[Blavatnik Index of Public Administration](http://index.bsg.ox.ac.uk/methodology/)
+website, the documentation on the website remains the definitive source. This
+replica has been produced in Quarto with the purpose of to integrating the
+documentation into a single
+[PDF document](Blavatnik-Index-of-Public-Administration-2024--Methodology.pdf),
+an [epub version](Blavatnik-Index-of-Public-Administration-2024--Methodology.epub)
+is also available.
+
+## Acknowledgements
+
+We wish to thank faculty, fellows, other researchers, staff and students at the
+Blavatnik School of Government for their comments, critiques and support as we
+have developed the Index. We also wish to thank all the external stakeholders
+who have helped us in the development of the work through their thoughts and
+feedback, especially those who participated in and attended meetings of our
+Senior Leadership Panel.
+
+## Copyright and disclaimer
+
+The Blavatnik Index of Public Administration is copyright of the Blavatnik
+School of Government, University of Oxford. The results of the Index, this
+report, any visualisations and articles associated with the Index produced by
+the Blavatnik School of Government are licensed under CC BY 4.0,
+[https://creativecommons.org/licenses/by/4.0/](https://creativecommons.org/licenses/by/4.0/).
+Any software and source code written by the Blavatnik School of Government to
+produce the Index and associated works is released under the MIT License. When
+re-using the Index data or associated materials, please cite the work
+appropriately:
+
+> Blavatnik Index of Public Administration 2024, Blavatnik School
+> of Government, University of Oxford, [https://index.bsg.ox.ac.uk](https://index.bsg.ox.ac.uk)
+
+As per the terms of the CC BY 4.0 license, to the fullest extent possible as
+permitted by law, the Blavatnik School of Government presents this work 'as is',
+without warranty of any kind and accepting no liability arising from any use of
+the work. The original source data used to compile the Blavatnik Index of Public
+Administration remains subject to licence terms of the original third-party
+authors, please consult the original materials for specific licence terms and
+conditions relating to each source.
+
+Media contact: [comms@bsg.ox.ac.uk](mailto:comms@bsg.ox.ac.uk)
+
+All other enquiries: [blavatnikindex@bsg.ox.ac.uk](mailto:blavatnikindex@bsg.ox.ac.uk)

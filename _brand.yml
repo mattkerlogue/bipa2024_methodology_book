@@ -1,0 +1,10 @@
+typography: 
+  fonts: 
+    - family: Open Sans
+      source: google
+    - family: Jost
+      source: google
+  base: Open Sans
+  headings:
+    family: Jost
+    weight: 400

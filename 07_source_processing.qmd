@@ -1,0 +1,115 @@
+---
+format:
+  html:
+    subtitle: |
+      How we import and process the original sources used to compile the
+      Blavatnik Index.
+source_document: https://index.bsg.ox.ac.uk/posts/source_processing/
+order: 107
+---
+
+# Processing of data sources {#sec-source_processing}
+
+Having identified and selected sources for inclusion in the Index, each source
+then underwent some degree of processing to ensure all source data is
+ultimately held in the same, common format.
+
+The common format is defined as a comma-separated values (CSV) file where
+each row represents a single data point (i.e. each row relates to a specific
+country’s value for a specific variable for a specific year). The common format
+has four columns:
+
+- *cc_iso3c* – a 3-character alphabetic code identifying the country/territory,
+  based on the ISO 3166-1 standard.
+- *ref_year* – a 4-digit number providing the reference year of the data point.
+- *variable* – a variable label that provides a unique reference to the data
+  series the data point is drawn from.
+- *value* – the numeric value of the data point.
+
+The processing of data sources also involved the creation of a metadata
+record for each source that provided standardised metadata about the source,
+a description of the source, documentation of the processing, and metadata
+relating to the extracted variables.
+
+For many sources this processing was a simple process that involves the
+extraction of the relevant subset of variables, conformance of country
+identifiers to the Index’s harmonised coding scheme, and transposition of the
+data from a ‘wide’ to ‘long’ format.
+
+In some situations, more complex processing is undertaken such as when data for
+countries in different regions has been published in separate files and needs
+consolidation, where data has been published in PDF files or to in situations
+where it has been necessary to re-process the original data to extract relevant
+scores. See the section on pre-processing (@sec-preprocessing) for more details.
+
+The source code for the processing is available on
+[Github](https://github.com/blavatnik-index/bipa2024_sourcedata).
+
+```{r}
+#| label: tbl-source-processing
+#| tbl-cap: Type of processing applied to data sources
+
+source("R/out_table.R")
+
+create_bullets <- function(x) {
+  if (knitr::is_html_output() || interactive()) {
+    out <- x |>
+      dplyr::summarise(
+        source_list = paste0("- ", source_name, collapse = "\n"),
+        .by = processing
+      )
+  } else if (knitr::is_latex_output()) {
+    out <- x |>
+      dplyr::summarise(
+        source_list = paste0("• ", source_name, collapse = "\n\n"),
+        .by = processing
+      )
+  } else {
+    stop("Can't create list")
+  }
+  return(out)
+}
+
+tibble::tribble(
+  ~processing, ~source_name,
+  "var_extract", "Bertelsmann Transformation Index (Bertelsmann Stiftung)",
+  "var_extract", "Doing Business Report (World Bank)",
+  "var_extract", "Gender Statistics Database (European Institute for Gender Equality)",
+  "var_extract", "ILOSTAT (International Labor Organization)",
+  "var_extract", "Logistics Performance Index (World Bank)",
+  "var_extract", "PARIS21 Statistical Capacity Monitor (OECD)",
+  "var_extract", "Quality of Government Expert Survey (University of Gothenburg)",
+  "var_extract", "Rule of Law Index 2023 (World Justice Project)",
+  "var_extract", "Sendai Framework Monitor (United Nations)",
+  "var_extract", "Sustainable Governance Indicators (Bertelsmann Stiftung)",
+  "var_extract", "Varieties of Democracy dataset (University of Gothenburg)",
+  "regional", "Global Corruption Barometer (Transparency International)",
+  "pdf_extract", "Global Cybersecurity Index (International Telecommunications Union)",
+  "reprocessing", "Global Data Barometer (D4D.net and ILDA)",
+  "reprocessing", "GovTech Maturity Index 2022 (World Bank)",
+  "reprocessing", "International Survey of Revenue Administration (CIAT, IMF, IOTA, and OECD)",
+  "reprocessing", "Open Data Inventory (Open Data Watch)"
+) |>
+  create_bullets() |>
+  dplyr::mutate(
+    processing = dplyr::case_match(
+      processing,
+      "var_extract" ~ "Variable extraction and formatting",
+      "regional" ~ "Consolidation of regional data files",
+      "pdf_extract" ~ "Extraction of data from PDF report",
+      "reprocessing" ~ "Re-processing of original data"
+    )
+  ) |>
+  gt::gt(groupname_col = "processing", row_group_as_column = TRUE) |>
+  render_bullets(source_list) |>
+  gt::cols_label(
+    processing ~ "Type of processing",
+    source_list ~ "Data sources"
+  ) |>
+  gt::cols_width(
+    processing ~ gt::pct(35),
+    source_list ~ gt::pct(65)
+  ) |>
+  gt::tab_stubhead(label = "Type of processing") |>
+  out_table()
+```

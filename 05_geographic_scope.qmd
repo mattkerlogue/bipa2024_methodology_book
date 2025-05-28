@@ -1,0 +1,142 @@
+---
+format:
+  html:
+    subtitle: | 
+      Adopting a more global coverage than the InCiSE Index.
+source_document: https://index.bsg.ox.ac.uk/posts/geographic_scope/
+order: 105
+---
+
+# Defining the Index's geographic scope {#sec-geographic_scope}
+
+The previous International Civil Service Effectiveness (InCiSE) Index covered
+only OECD and EU member countries (31 countries in 2017 and 38 countries
+in 2019), driven somewhat by the InCiSE Index’s reliance on several sources
+limited to either OECD or EU countries (11 of the 25 sources for the InCiSE
+Index 2019 had an OECD or EU member scope). In establishing the Blavatnik Index
+of Public Administration, we adopted a desire to produce an index with a more
+global scope, either in addition to or instead of an index limited to OECD/EU
+countries.
+
+Following the scoping exercise to identify potential sources (see section 2)
+and the mapping exercise to align source data to our conceptual framework (see
+section 4) we were able to review geographic coverage. Of the 147 data points
+identified for inclusion in the Blavatnik Index of Public Administration:
+70 have a “global” coverage, that is they cover a large number of
+countries/territories (min: 109, median: 140, max: 198), 70 are limited to OECD
+or EU member countries and associated partners (min: 21, median: 40, max: 51),
+and 7 are limited to a largely non-OECD scope (all from a single source covering
+137 countries, comprising countries which were not OECD members prior to 1989).
+
+Based on this spread of data it was decided to focus construction of the
+Blavatnik Index of Public Administration on the data from “global” sources. In
+addition to the global sources, data from the non-OECD source and its companion
+source with an OECD/EU scope were also selected for inclusion. As a result,
+the Index is made up of 82 metrics (the 70 global data points plus 7 metrics
+from the non-OECD source and 5 from its companion OECD source). @tbl-metrics_geo
+summarises the number of metrics by theme and scope. All but 4 of the 20 themes
+defined in the Index’s conceptual framework are measured in the global Index,
+two themes only have data from sources with an OECD/EU scope (cross-government
+collaboration and employee engagement), while for one theme (social security)
+no relevant data was identified. While not included in the overall Index
+calculations, data from the OECD/EU specific sources has been retained and
+processed to allow for deeper analysis of particular themes.
+
+```{r}
+#| label: tbl-metrics_geo
+#| tbl-cap: Blavatnik Index metrics by geographic coverage
+
+source("R/out_table.R")
+
+metrics_df_raw <- readr::read_csv(
+  file.path("data", "metrics_metadata.csv"), show_col_types = FALSE
+)
+data_structure <- readr::read_csv(
+  file.path("data", "data_structure.csv"), show_col_types = FALSE
+)
+
+metrics_df <- metrics_df_raw |>
+  dplyr::mutate(
+    theme = floor(structure_id/100)*100,
+    scope2 = dplyr::case_when(
+      grepl("^bti", source_variable) ~ "non_oecd",
+      grepl("^sgi", source_variable) ~ "oecd_eu",
+      is.na(metric) ~ NA_character_,
+      scope == "zzz_ignore" ~ NA_character_,
+      TRUE ~ scope
+    ),
+    valid = 1
+  ) |>
+  dplyr::add_row(
+    theme = 30500,
+    scope2 = c("non_oecd", "oecd_eu", "global")
+  ) |>
+  dplyr::full_join(
+    data_structure |>
+      dplyr::filter(level == "theme"),
+    by = c("theme" = "structure_id"), suffix = c("_metric", "_theme")
+  ) |>
+  dplyr::mutate(
+    label_theme = forcats::fct_reorder(label_theme, theme)
+  )
+
+metrics_summary <- metrics_df |>
+  dplyr::filter(!is.na(scope2)) |>
+  dplyr::summarise(
+    n = sum(valid, na.rm = TRUE),
+    .by = c(theme, label_theme, scope2)
+  ) |>
+  dplyr::mutate(
+    domain = floor(theme/10000) * 10000
+  ) |>
+  dplyr::left_join(
+    data_structure,
+    by = c("domain" = "structure_id"), suffix = c("_theme", "_domain")
+  ) |>
+  dplyr::mutate(
+    label_domain = forcats::fct_reorder(label, domain)
+  ) |>
+  dplyr::select(label_domain, theme, label_theme, scope2, n) |>
+  tidyr::pivot_wider(names_from = scope2, values_from = n) |>
+  dplyr::arrange(label_domain, label_theme) |>
+  dplyr::left_join(
+    metrics_df |>
+      dplyr::mutate(
+        theme = floor(structure_id/100) * 100
+      ) |>
+      dplyr::filter(!is.na(metric) & scope == "global") |>
+      dplyr::count(theme),
+    by = "theme"
+  ) |>
+  dplyr::select(
+    label_domain, label_theme, global, oecd_eu, non_oecd, included = n
+  )
+
+gt::gt(metrics_summary, groupname_col = "label_domain", rowname_col = "label_theme") |>
+  gt::sub_zero(columns = c(global, oecd_eu, non_oecd), zero_text = "—") |>
+  gt::sub_missing(columns = c(global, oecd_eu, non_oecd), missing_text = "—") |>
+  gt::sub_missing(columns = included, missing_text = 0) |>
+  gt::grand_summary_rows(
+    columns = -label_theme,
+    fns = list(`Total number of metrics` ~ sum(., na.rm = TRUE)),
+    missing_text = ""
+  ) |>
+  gt::tab_spanner(
+    label = "Geographic grouping",
+    columns = c(global, oecd_eu, non_oecd)
+  ) |>
+  gt::cols_label(
+    global ~ "Global",
+    oecd_eu ~ "OECD/EU",
+    non_oecd ~ "Non-OECD",
+    included ~ "Total included"
+  ) |>
+  gt::cols_align(align = "left") |>
+  gt::cols_align(
+    columns = c(global, oecd_eu, non_oecd, included),
+    align = "right"
+  ) |>
+  gt::tab_stubhead("Domain/theme") |>
+  out_table()
+
+```

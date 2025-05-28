@@ -1,0 +1,793 @@
+---
+format:
+  html:
+    subtitle: | 
+      How we have allocated data from sources to the domains and themes of
+      the Index's conceptual framework and data model.
+source_document: https://index.bsg.ox.ac.uk/posts/source_alignment/
+order: 108
+---
+
+# Alignment of sources to the Index's conceptual framework {#sec-source_alignment}
+
+```{r}
+#| label: setup
+#| echo: false
+
+source("R/out_table.R")
+
+source_meta <- readr::read_csv(
+  file.path("data", "source_summary.csv"), show_col_types = FALSE
+)
+
+metrics_meta <- readr::read_csv(
+  file.path("data", "metrics_summary.csv"), show_col_types = FALSE
+)
+
+bipa_structure <- readr::read_csv(
+  file.path("data", "bipa2024_data_structure.csv"), show_col_types = FALSE
+)
+
+metrics_summary <- function(theme, df = metrics_meta) {
+  df |>
+    dplyr::filter(floor(structure_id/100) == theme/100) |>
+    dplyr::arrange(structure_id) |>
+    dplyr::select(
+      indicator, metric_label, data_source, source_variable, collection_type,
+      ref_year, transformation, n_countries
+    ) |>
+    gt::gt(groupname_col = "indicator", row_group_as_column = TRUE) |>
+    gt::tab_stubhead("Indicator") |>
+    gt::cols_label(
+      indicator ~ "Indicator",
+      metric_label ~ "Metric",
+      data_source ~ "Source",
+      source_variable ~ "Source variable",
+      collection_type ~ "Type of collection",
+      ref_year ~ "Year(s)",
+      transformation ~ "Data transformation",
+      n_countries ~ "Number of countries"
+    ) |>
+    gt::cols_align(align = "right", columns = c(ref_year, n_countries)) |>
+    gt::cols_width(
+      indicator ~ gt::pct(10),
+      metric_label ~ gt::pct(10),
+      data_source ~ gt::pct(6),
+      source_variable ~ gt::pct(39),
+      collection_type ~ gt::pct(10),
+      ref_year ~ gt::pct(6),
+      transformation ~ gt::pct(12),
+      n_countries ~ gt::pct(7)
+    ) |>
+    out_table(width = 1000)
+    
+}
+
+```
+
+In order to calculate the Index, and its components, the source data needs to
+be aligned against our conceptual framework, in. doing so the following approach
+was followed:
+
+- To ensure simplicity of the methodology for calculating the Index, variables
+from the source data were allocated to only one theme.
+- When selecting the theme to allocate a variable to, maximising coverage of
+the conceptual framework has been prioritised.
+- Variables measuring similar concepts are grouped together to define the
+indicators within that theme.
+
+This section describes the relationship of source data to the Index’s conceptual
+framework and data model. For each theme, a table details the indicators and
+variables that make up the theme, it also lists any transformation of the
+variables and metadata about the variable/source (reference year(s), number of
+countries covered, type of data collection).
+
+To enable effective comparison, all source data is translated to a 0-to-1 scale,
+in addition to scaling some data undergoes a transformation (e.g. data where
+higher scores relate to poorer performance are inverted) before it is scaled,
+@sec-rescaling_transformation describes the different transformation processes
+outlined in the metrics tables.
+
+The type of data collection used for each of the sources have been coded into
+one of nine types, which can be grouped into three broad groupings (quantitative
+data, assessments, and opinion measures):
+
+- Quantitative data
+    - Administrative data – published data drawn from administrative systems
+      (e.g. data submitted by tax agencies to the International Survey of
+      Revenue Administration).
+    - Official statistics – published data drawn from official statistics (e.g.
+      official statistics data collated by the International Labor Organization).
+    - Statistical analysis – statistical analysis conducted on government
+      data/publications (e.g. the analysis of policy documents used by the
+      PARIS21 Statistical Capability Monitor).
+- Assessments
+    - Expert assessment – external objective assessment of government practices
+    (e.g. assessment and analysis of open data published by governments by
+    civil society researchers for the Global Data Barometer).
+    - Government self-assessment – responses by government officials to a survey
+      (e.g. responses by officials to the World Bank survey that is used to
+      calculate the GovTech Maturity Index).
+- Opinion measures
+    - Business opinion – responses by businesses to an opinion survey (e.g.
+      responses by businesses to the World Bank survey used to collect
+      information for the Logistics Performance Index).
+    - Expert opinion – responses by experts to an opinion survey (e.g.
+      responses by academics/civil society experts to the Quality of Government
+      Expert Survey), or assessments by experts that provide a rating (e.g.
+      academic/civil society expert ratings used to produce in the Bertelsmann
+      Transformation Index).
+    - General public opinion – responses by the general public to an opinion
+      survey (e.g. responses by members of the public to the survey used to
+      calculate the Global Corruption Barometer).
+    - Combined expert and public option – the combination of responses from
+      surveys of experts and the general public (e.g. the combination of a
+      survey of legal professionals and a general public opinion survey used
+      in the production of the Rule of Law Index).
+
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-source_ref
+#| tbl-cap: > 
+#|   Data sources used in the Blavatnik Index of Public Administration 2024
+
+source_meta |>
+  gt::gt() |>
+  gt::cols_hide("source_id") |>
+  gt::cols_label(
+    source_name = "Data source",
+    publisher = "Publisher",
+    collection_type = "Type of data collection",
+    ref_year = "Reference year(s)",
+    website = "Website"
+  ) |>
+  gt::fmt_url("website") |>
+  gt::cols_width(
+    source_name ~ gt::pct(25),
+    publisher ~ gt::pct(15),
+    collection_type ~ gt::pct(12),
+    ref_year ~ gt::pct(8),
+    website ~ gt::pct(40)
+  ) |>
+  out_table(width = 1000)
+
+```
+
+:::
+
+## Strategy and Leadership domain
+
+The strategy and leadership domain has five themes: strategic capacity;
+cross-government collaboration; openness and communications; integrity; and,
+innovation. Of these, all but cross-government collaboration can be measured
+from sources with global coverage.
+
+### Strategic capacity
+
+There are two sources for the strategic capacity theme: the Bertelsmann
+Transformation Index (BTI) and the Sustainable Governance Indicators (SGI). Four
+measures are extracted from these sources and used to estimate one indicator:
+prioritisation.
+
+The prioritisation indicator measures the extent to which governments can set
+priorities/strategies. It is estimated by two measures from the SGI measuring
+the influence of strategic planning units and the strategic appraisal capability
+of the centre of government, these are complemented by the BTI measures on the
+setting of strategic priorities and the efficiency of resource allocation.
+
+A further three measures were identified from OECD/EU only sources, these could
+be used to estimate a second indicator on institutional adaptation.
+
+- Metrics table: @tbl-strled_cap
+- Framework definition: @sec-strategic-capacity-theme
+
+### Cross-government collaboration
+
+Four measures from the Sustainable Governance Indicators were identified
+as potential metrics for the collaboration theme, which could be used to
+estimate two indicators: collaboration in policy development, and international
+collaboration; however, there were no appropriate measures in the Bertelsmann
+Transformation Index that these could be matched with. Therefore, the
+collaboration theme is not measured in the global version of the index.
+
+- Metrics table: *not available*
+- Framework definition: @sec-xgov-collaboration-theme
+
+### Openness and communications
+
+There are four sources for the openness and communications theme: the Bertelsmann
+Transformation Index (BTI), the GovTech Maturity Index, the Rule of Law Index,
+and the Sustainable Governance Indicators (SGI). Seven measures are extracted
+from these sources and are used to estimate three indicators: right to
+information; open government; and, engagement and feedback.
+
+The right to information indicator assesses the extent to which non-government
+actors/members of the public can obtain/request access to official information.
+It is estimated from the ROLI measure on right to information.
+
+The open government indicator assesses the extent to which non-government
+actors/members of the public can access laws/regulations and the extent to
+which governments make information proactively available to the public. It is
+estimated from the ROLI measure on publicized laws and government data and a
+measure extracted from the GTMI on the existence of portals for open government
+initiatives and open data.
+
+The engagement and feedback indicator assesses the extent and nature of
+government consultation in the development of policies and regulations and
+whether service users can provide feedback about their experience of public
+services. It is estimated from a measure from the SGI matched with a measure
+from the BTI, both measuring consultation with non-state actors, the ROLI
+measure on complaint mechanisms and a measure extracted from the GTMI on digital
+methods for public participation.
+
+A further 9 measures were identified from OECD/EU only sources, these would
+add further depth to the three global indicators as well as estimate a fourth
+indicator around public communications.
+
+- Metrics table: @tbl-strled_opn
+- Framework definition: @sec-openness-communications-theme
+
+### Integrity
+
+There are six sources for the integrity theme: the Bertelsmann
+Transformation Index (BTI), the Global Corruption Barometer (GCB), the Global
+Data Barometer, the Quality of Government Expert Survey (QOG), the Rule of Law
+Index (ROLI), and the Varieties of Democracy Dataset (VDEM). 10 measures are
+extracted from these sources and are used to estimate four indicators: impartial
+behaviour; corruption; sanctions; and, integrity data.
+
+The impartial behaviour indicator measures the degree of impartiality in the
+operation of public administrations, i.e. the extent to which politicians
+interfere with day-to-day administrative practice and delivery of public
+services. It is estimated by the QOG measures on whether officials act with
+impartiality and political interference in bureaucratic decision making, the
+ROLI measure on whether due process is respected in administrative proceedings,
+and the VDEM measure on whether public officials are impartial in the
+performance of their duties.
+
+The corruption indicator measures the extent to which officials are not involved
+in corruption/corrupt practices. It is estimated by the GCB measure on public
+perception of the extent of officials involved in corruption, and the VDEM
+measures on whether public officials grant favours in return for a bribe and
+whether officials misuse or embezzle public funds/resources.
+
+The sanctions indicator measures the extent to which officials found to engage
+in misconduct are sanctioned for their misbehaviour. It is estimated by the BTI
+measure on the extent to which officials are prosecuted and the ROLI measure on
+the extent to which officials are sanctioned.
+
+The integrity data indicator measures the availability of data published
+by government relating to public integrity (e.g. registers of interests,
+gifts, meetings etc). It is estimated by the GDB’s measure on integrity data
+availability.
+
+A further five metrics were identified in OECD/EU only sources, these would
+provide estimates for two further indicators: the existence of an integrity
+framework; and, practices for managing conflicts of interest.
+
+- Metrics table: @tbl-strled_int
+- Framework definition: @sec-integrity-theme
+
+### Innovation
+
+There are three sources for the innovation theme: the Bertelsmann Transformation
+Index (BTI), the GovTech Maturity Index (GTMI), and the International Survey of
+Revenue Administration (ISORA). Three measures are extracted from these sources
+to measure one indicator: innovative approach.
+
+The innovative approach indicator measures the extent to which governments
+are adopting or supporting innovative practices in the development of policy
+or delivery of public services. It is estimated by the BTI measure rating how
+innovative and flexible governments are overall, data extracted from the GTMI
+relating to the support for innovation (with a focus on digital services/new
+technology), and the use of innovative practices by the tax administration.
+
+- Metrics table: @tbl-strled_inv
+- Framework definition: @sec-innovation-theme
+
+## Public Policy domain
+
+The public policy domain has five themes: policy making; financial management;
+regulation; crisis and risk management; and, use of data and statistics. All five
+themes in the public policy domain can be measured from global sources.
+
+### Policymaking
+
+There are two sources for the policymaking theme: the Bertelsmann
+Transformation Index (BTI) and the Sustainable Governance Indicators (SGI).
+Two measures are extracted from these sources to estimate one indicator: policy
+coordination.
+
+The policy coordination indicator measures the extent to which government
+design coordinated policies. It is estimated by the SGI measure on the
+ministerial/cabinet coordination matched with the BTI measure on coordinating
+conflicting objectives.
+
+A further four measures were identified in OECD/EU only sources, these
+would provide estimates of two additional indicators: policy expertise; and, policy
+evaluation.
+
+- Metrics table: @tbl-pubpol_pol
+- Framework definition: @sec-policymaking-theme
+
+### Financial management
+
+Three measures were identified from the Open Budget Survey relating to the
+transparency of budget documents, budget consultation practices and the
+transparency of budget oversight, as well as one measure from the Global
+Data Barometer relating to the availability of public finance data. However,
+on further review it was decided not to include these measures owing to the
+potential for misinterpretation of the results. These measures focus principally
+on the transparency of fiscal information provided by the government, while
+this is an important component it does not measure important internal practices
+such as the use of spending reviews, cost benefit analysis, spend controls
+and authorisation processes, internal record keeping/management information or
+internal audit processes. Moreover, several of the countries that score well in
+these transparency measures have well documented instances of corruption, and/or
+make use of national security legislation or extrabudgetary measures to hide
+some degree of their public expenditure.
+
+More traditional measures of public financial management use output/outcome
+indicators such as the debt to GDP ratio, tax revenue as a share of GDP, public
+expenditure as a share of GDP, yields on government bonds. While good practices
+in the management of the public finances is likely an important factor in these
+indicators, they are much more likely to be influenced by wider economic factors
+and specific political decisions, meaning that these types of measures are out
+of scope.
+
+In keeping with our principle for a simple and transparency methodology, since
+we have been unable to identify a simple approach to accounting for either
+corruption or the hiding of public expenditure it was decided not to include
+measures on financial management in the calculation of the Index at this stage.
+
+- Metrics table: *not available*
+- Framework definition: @sec-financial-management-theme
+
+### Regulation
+
+There is one source for the regulation theme: the Rule of Law Index (ROLI).
+Two measures are extracted from this source to estimate a single indicator:
+regulatory enforcement.
+
+The regulatory enforcement indicator measures the extent to which regulations
+are enforced effectively and properly. It is estimated from the ROLI measures
+on the effective enforcement of regulations and the enforcement of regulation
+without improper influence.
+
+A further six measures were identified in OECD/EU only sources, one measure
+would add to the existing metrics estimating the regulatory enforcement
+indicator while the others would estimate an additional indicator on the use of
+regulatory impact assessment.
+
+- Metrics table: @tbl-pubpol_reg
+- Framework definition: @sec-regulation-theme
+
+### Crisis and risk management
+
+There are two sources for the crisis and risk management theme: the Global
+Cybersecurity Index (GCI) and the Sendai Framework Monitor (SFM). Six measures
+are extracted from these sources to estimate two indicators: natural hazards;
+and, cybersecurity.
+
+The natural hazards indicator measures the extent to which governments have
+strategies to respond to natural hazard disasters. It is estimated from the SFM
+measure on disaster risk reduction strategies.
+
+The cybersecurity indicator measures the extent to which governments have
+strategies and practices in places to handle cybersecurity risks. It is
+estimated from the five pillars of the GCI: capacity building measures,
+cooperative measures, legal measures, organisational measures, and technical
+measures.
+
+- Metrics table: @tbl-pubpol_crm
+- Framework definition: @sec-crisis-risk-theme
+
+### Use of data and statistics
+
+There are three sources for the use of data and statistics theme: the Global
+Data Barometer (GDB), the Open Data Inventory (ODIN) and the PARIS21 Statistical
+Capacity Monitor (PARIS21). 13 measures are extracted from these sources to
+estimate four indicators: data capability; data availability; data coverage; and
+data re-use.
+
+The data capability indicator measures the extent of government support for data
+skills and capabilities, and governance policies for data and statistics. It is
+estimated from the GDB measures on data governance and data capability.
+
+The data availability indicator measures the availability of official statistics
+and other open data published by government. It is estimated from the GDB
+measures on the availability of company data, land data, health data and climate
+data, and the ODIN measures on the openness of economic statistics, social
+statistics and environmental statistics.
+
+The data coverage indicator measures the extent of indicators and disaggregation
+published and availability of time-series data. It is estimated from the ODIN
+measures on the coverage of economic, social and environmental statistics.
+
+The data re-use indicator measures the extent to which data and statistics are
+used/re-used. It is estimated from the PARIS21 measure on the use of statistics
+in policy documents.
+
+A further three measures were identified in OECD/EU only sources, these would
+provide further metrics for the data availability and data re-use indicators.
+
+- Metrics table: @tbl-pubpol_dat
+- Framework definition: @sec-use-of-data-theme
+
+## National Delivery domain
+
+The national delivery domain has five themes: system oversight, digital
+services, tax administration, border services, and social security. Of these,
+all but social security can be measured from global sources.
+
+### System oversight
+
+There are two sources for the system oversight theme: the Bertelsmann
+Transformation Index (BTI) and the Sustainable Governance Indicators (SGI).
+Two measures are extracted from these sources to estimate one indicator: policy
+implementation.
+
+The policy implementation indicator measures the extent to which governments are
+able to achieve objectives. It is estimated by the SGI measure on the extent to
+which government can achieve its policy objectives matched with the BTI measure
+on whether the government can implement its policies.
+
+A further six measures were identified in OECD/EU only sources, these would
+provide estimates for two additional indicators: policy monitoring and
+subnational relations.
+
+- Metrics table: @tbl-natdel_sys
+- Framework definition: @sec-system-oversight-theme
+
+### Digital services
+
+There is one source for the digital service theme: the GovTech Maturity Index
+(GTMI). Three measures are extracted from this source, each estimating one
+indicator: digital strategy and policies; infrastructure; and, digital public
+services.
+
+The digital strategy and policy indicator measures the existence of strategies,
+policies and practices that support the government’s approach to digital
+services. It is estimated from data extracted from the GTMI on digital
+strategies and policies.
+
+The infrastructure indicator measures the existence of technologies that support
+the delivery of digital services. It is estimated from data extracted from the
+GTMI on back-end technologies and infrastructure.
+
+The digital public services indicator measures the extent of digital services
+for end-users. It is estimated from the data extracted from the GTMI on the
+existence of service portals, e-payment services and use of digital signature
+technologies.
+
+A further 14 measures were identified in OECD/EU only sources, these would
+provide further metrics to estimate the digital strategy and policy, the
+infrastructure, and the digital public services indicators, it would also
+provide metrics to estimate an additional indicator on user-centric service
+design and development.
+
+- Metrics table: @tbl-natdel_dig
+- Framework definition: @sec-digital-services-theme
+
+### Tax administration
+
+There are two sources for the tax administration theme: the Doing Business
+report (DB), and the International Survey of Revenue Administration (ISORA).
+12 metrics are extracted from these sources to estimate three indicators: tax
+agency administration; tax compliance; and, digital tax services.
+
+The tax agency administration indicator measures the administrative functioning
+of the tax agency. It is estimated by the ISORA measures on administrative costs
+(as a percent of net revenue) and the turnover of tax agency staff.
+
+The tax compliance indicator measures the compliance of taxpayers with their
+obligations and the effectiveness of the tax agency in enforcing compliance.
+It is estimated by the ISORA measures on the rate of taxes filed on time (for
+both corporate and personal taxes), the rate of taxes paid on time (for both
+corporate and personal taxes), and tax debt (as a percent of net revenue), it is
+also estimated by the DB measure on the annual time businesses must take to file
+tax returns/declarations.
+
+The digital tax services indicator measures the use of digital methods for
+interacting with the tax agency. It is estimated from the ISORA measures on
+the proportion of taxes filed electronically (for both corporate and personal
+taxes), the proportion of taxes paid electronically, and the proportion of
+service contacts that occur via digital channels.
+
+- Metrics table: @tbl-natdel_tax
+- Framework definition: @sec-tax-administration-theme
+
+### Border services
+
+There is one source for the border services theme: the Logistics Performance
+Index (LPI). One measure is extracted from this source to estimate a single
+indicator: customs processes.
+
+The customs processes indicator measures the ease with which goods can be
+shipped across international borders. It is estimated by the LPI measure on the
+efficiency of customs processes.
+
+- Metrics table: @tbl-natdel_brd
+- Framework definition: @sec-border-services-theme
+
+### Social security
+
+The GovTech Maturity Index provides data on the existence of portals for social
+security insurance and job searches. These are included in the measurement of
+the digital public services indicator in the digital services theme. No other
+measures of the functioning and practice of national-level social security
+services have been identified.
+
+- Metrics table: *not available*
+- Framework definition: @sec-social-security-theme
+
+## People and Processes domain
+
+The people and processes domain has five themes: employee engagement; diversity &
+inclusion; HR management; procurement; and, technology and workplaces. Of these,
+only diversity and inclusion, HR management and procurement can be measured from
+global sources.
+
+### Employee engagement
+
+Measures relating to learning and development practices were identified in one
+OECD/EU only source. There were no measures identified with extensive country
+coverage that would allow for estimation of an indicator relating to employee
+engagement in a global version of the index.
+
+- Metrics table: *not available*
+- Framework definition: @sec-employee-engagement-theme
+
+### Diversity and inclusion metrics
+
+There are four sources for the diversity and inclusion theme: the EIGE Gender
+Statistics Database (EIGE), the International Labor Organization (ILO), the
+International Survey of Revenue Administration (ISORA), and the Varieties of
+Democracy Dataset (VDEM). Ten measures are extracted from these sources to
+estimate three indicators: inclusive recruitment; gender diversity (all staff);
+and, gender diversity (management).
+
+The inclusive recruitment indicator measures the extent to which individuals
+with different characteristics or backgrounds are able to apply for government
+jobs. It is estimated from the VDEM measures on whether state jobs are open
+to those regardless of their gender, their rural or urban location, their
+socio-economic position, their social group (e.g. ethnic or religious group), or
+their political group.
+
+The gender diversity (all staff) indicator measures the extent to which gender
+parity is achieved across the employee base. It is estimated from data extracted
+from the ILO on women in public administration employment, the ISORA measure on
+the proportion of all those working at the tax agency that are women, and data
+extracted from the ILO comparing the hourly earnings of men and women in the
+public sector.
+
+The gender diversity (management) indicator measures the extent to which gender
+parity is achieved at management/senior levels of the public sector. It is
+estimated from data extracted from the EIGE and ILO on women in management
+positions, and the ISORA measure on the proportion of senior officials working
+at the tax agency that are women.
+
+An additional metric was identified from OECD/EU only sources that would provide
+an additional metrics for the estimate of inclusive recruitment.
+
+- Metrics table: @tbl-pplprc_inc
+- Framework definition: @sec-diversity-inclusion-theme
+
+### HR management
+
+There are two sources for the HR management theme: the Quality of Government
+Expert Survey (QOG) and the Varieties of Democracy Dataset (VDEM). Five measures
+are extracted from these sources to estimate two indicators: recruitment regime;
+and, meritocratic appointment.
+
+The recruitment regime indicator measures the openness and security of
+recruitment to public administration jobs. It is estimated by the QOG measures
+on hierarchy levels subject to open recruitment and on the security of tenure
+enjoyed by public employees.
+
+The meritocratic appointment indicator measures the extent to which appointment
+decisions in the public administration are based on merit and not on patronage.
+It is estimated by the QOG measures on recruitment by merit and patronage, and
+the VDEM measure on recruitment not by patronage.
+
+- Metrics table: @tbl-pplprc_hrm
+- Framework definition: @sec-hr-management-theme
+
+### Procurement
+
+There is one source for the procurement theme: the Global Data Barometer (GDB).
+One measure is extracted from this source to estimate a single indicator:
+procurement data.
+
+The procurement data indicator measures the availability of data relating to
+public procurement tenders and contracts. It is estimated from the GDB measure
+on procurement data.
+
+- Metrics table: @tbl-pplprc_pro
+- Framework definition: @sec-procurement-theme
+
+### Technology and workplaces metrics
+
+There is one source for the technology and workplaces theme: the GovTech
+Maturity Index (GTMI). One measure is extracted from this source to estimate a
+single indicator: administrative IT systems.
+
+The administrative IT systems indicator measures the existence of management
+information systems for administrative activities. It is estimated based on data
+extracted from the GTMI on the existence and nature of MI systems for public
+finances, HR management, payroll services and public procurement.
+
+- Metrics table: @tbl-pplprc_twk
+- Framework definition: @sec-technology-workplaces-theme
+
+## Metrics definition tables
+
+The following tables provide metadata about the metrics for each of the 4
+domains and 16 themes that comprise the Blavatnik Index of Public
+Administration 2024. For each metric the table provides a label, the data
+source reference, the original variable label in the data source, the type
+of collection used by the data source, the reference year(s) of the data used
+by the Blavatnik Index, any transformation applied to the data, and the number
+of countries for which there is data available.
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-strled_cap
+#| tbl-cap: Metrics for the strategic capacity theme
+metrics_summary(10100)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-strled_opn
+#| tbl-cap: Metrics for the openness and communications theme
+metrics_summary(10300)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-strled_int
+#| tbl-cap: Metrics for the integrity theme
+metrics_summary(10400)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-strled_inv
+#| tbl-cap: Metrics for the innovation theme
+metrics_summary(10500)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pubpol_pol
+#| tbl-cap: Metrics for the policmaking theme
+metrics_summary(20100)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pubpol_reg
+#| tbl-cap: Metrics for the regulation theme
+metrics_summary(20300)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pubpol_crm
+#| tbl-cap: Metrics for the crisis and risk management
+metrics_summary(20400)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pubpol_dat
+#| tbl-cap: Metrics for the use of data and statistics theme
+metrics_summary(20500)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-natdel_sys
+#| tbl-cap: Metrics for the system oversight theme
+metrics_summary(30100)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-natdel_dig
+#| tbl-cap: Metrics for the digital services theme
+metrics_summary(30200)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-natdel_tax
+#| tbl-cap: Metrics for the tax administration theme
+metrics_summary(30300)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-natdel_brd
+#| tbl-cap: Metrics for the border services theme
+metrics_summary(30400)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pplprc_inc
+#| tbl-cap: Metrics for the diversity and inclusion theme
+metrics_summary(40200)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pplprc_hrm
+#| tbl-cap: Metrics for the HR management theme
+metrics_summary(40300)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pplprc_pro
+#| tbl-cap: Metrics for the procurement theme
+metrics_summary(40400)
+```
+
+:::
+
+:::{.landscape}
+
+```{r}
+#| label: tbl-pplprc_twk
+#| tbl-cap: Metrics for the technology and workplaces theme
+metrics_summary(40500)
+```
+
+:::

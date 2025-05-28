@@ -1,0 +1,254 @@
+---
+format:
+  html:
+    subtitle: | 
+      How we normalise source data into metrics with a common 0 to 1 score.
+source_document: https://index.bsg.ox.ac.uk/posts/rescaling_transformation/
+order: 114
+---
+
+# Re-scaling and transformation of data {#sec-rescaling_transformation}
+
+As discussed in the section on data aggregation (@sec-data_aggregation), the
+metrics for the Blavatnik Index of Public Administration normalised versions
+of the source data to re-scale them into the range 0 to 1, where 0 represents
+the lowest performance and 1 represents the highest performance of the group
+of countries the data relates to. This section provides further details on
+the re-scaling and transformation methods used.
+
+For the majority of metrics this re-scaling is a simple min-max normalisation,
+however there are 24 metrics which undergo some other form of transformation.
+
+All the re-scaling operations take place after the source data has been limited
+to countries identified for inclusion in the Index. Thus, the re-scaled data
+represents performance relative to countries included in the Index, it does not
+necessarily represent performance relative to all countries that are included
+in the original source for that specific metric, nor does it represent the
+performance relative to any absolute/theoretical scale limits.
+
+## Min-max normalisation
+
+65 of the 89 metrics are re-scaled using min-max normalisation. This
+normalisation converts the minimum value in the observed data to 0 and the
+maximum value in the observed data to 1, all other values are re-scaled
+accordingly.
+
+The metric value for a given country ($m_c$) is calculated as the difference
+between the country’s score in the source data ($x_c$) and the minimum score
+($x_{min}$), this difference is then divided by the range of scores in the
+source data (difference between the maximum score in the source data,
+$x_{max}$, and the minimum score in the source data, $x_{min}$), see
+equation 1.
+
+$$
+m_c = \frac{(x_c - x_{min})}{(x_{max} - x_{min})} \tag{1}
+$$ 
+
+## Inverted min-max normalisation
+
+For 8 metrics their base scaling is such that the highest score represents
+worse performance than the lowest score, for these metrics the normalisation
+is inverted. This is equivalent to conducting a min-max normalisation above
+but subtracting this score from 1, see equation 2.
+
+$$
+m_c = 1 - \frac{(x_c - x_{min})}{(x_{max} - x_{min})} \tag{2}
+$$
+
+## Distance re-scaling
+
+For 4 metrics their re-scaling is based on their distance from a reference
+point. For these metrics both the highest and lowest scoring countries
+represent the worst performance and countries closest to the reference point
+represent the best performance.
+
+- For the two metrics relating to gender equality the reference point is 50%,
+  i.e. the country with the proportion of women in public employment closest to
+  50% is the country with the highest performance, and vice versa.
+- For the metric relating to the gender pay ratio (the ratio of female to male
+  pay in the public sector) the reference point is 1, i.e. the country where
+  female pay is closest to male pay is the country with the highest
+  performance, and vice versa.
+- For the metric on staff turnover in tax administrations the reference point
+  is the median value, i.e. both countries with no/very low turnover and
+  countries with very high turnover are low performers. For the gender measures
+  the reference points can be set conceptually – gender equality implies a
+  50:50 split in the composition of staff and equality of pay between men and
+  women. However, while high and low turnover are both problematic there is no
+  consensus on what an ideal level of turnover should be, therefore the median
+  of the observed data is used.
+
+First, for each country its distance ($d_c$) is calculated as the absolute
+difference between the country’s score in the source data ($x_c$) from the
+reference value ($r$), see equation 3. The distances are then used as the
+inputs to the min-max normalisation to calculate the metric value for the
+country ($m_c$), see equation 4.
+
+$$
+d_c = | x_c - r | \tag{3}
+$$ 
+
+$$
+m_c = \frac{d_c - d_{min}}{d_{max} - d_{min}} \tag{4}
+$$ 
+
+## BTI and SGI re-scaling
+
+The Blavatnik Index of Public Administration makes use of two sources from
+the Bertelsmann Stiftung: the Bertelsmann Transformation Index (BTI) and the
+Sustainable Governance Indicators (SGI). While these two sources have similar
+aims, to assess the quality of governance and achievement of public policy
+goals, and use similar methodologies they have different scopes for country
+inclusion – the BTI covers countries that were not members of the OECD prior to
+1989, while the SGI covers all current OECD and EU members. The SGI was a key
+data source in the InCiSE 2019 report, in seeking to expand coverage globally,
+for the Blavatnik Index of Public Administration we have paired 5 of the SGI
+variables with 5 from the BTI.
+
+153 countries are measured across the two sources: 26 countries are only
+included in the SGI, 122 countries are only included in the BTI, while 15
+countries are included in both the BTI and the SGI. Both the BTI and SGI both
+ask expert assessors to rate countries on a scale of 1 to 10, and while they
+have similar aims the questions and intent of the studies is calibrated to the
+differing development levels of the different sets of countries included in
+each study. @tbl-bti_sgi_mean shows the average scores across the 10 variables
+from the BTI and SGI sources split by country coverage, it shows that the 15
+countries included in both datasets score higher in the BTI than the other
+countries the BTI (6.8 vs 4.8) but in the SGI they score lower than the other
+countries in the SGI (5.5 vs 6.8).
+
+```{r}
+#| label: tbl-bti_sgi_mean
+#| tbl-cap: >
+#|   Average scores across the variables from the BTI and SGI data sources by
+#|   country inclusion
+
+source("R/out_table.R")
+
+bipa_source <- vroom::vroom(
+  file = c(
+    "../bipa2024_sourcedata/data_out/bti_2024.csv",
+    "../bipa2024_sourcedata/data_out/sgi_2022.csv"
+  ),
+  show_col_types = FALSE
+)
+
+bti_sgi_data <- bipa_source |>
+  dplyr::mutate(
+    source = dplyr::if_else(grepl("^bti", variable), "bti", "sgi")
+  )
+
+bti_sgi_means <- bti_sgi_data |>
+  dplyr::summarise(value = mean(value), .by = c(cc_iso3c, source)) |>
+  dplyr::add_count(cc_iso3c) |>
+  dplyr::mutate(
+    group = dplyr::case_when(
+      n == 1 & source == "bti" ~ "bti_only",
+      n == 1 & source == "sgi" ~ "sgi_only",
+      n == 2 ~ "bti_sgi"
+    )
+  ) |>
+  dplyr::summarise(value = mean(value), .by = c(source, group)) |>
+  tidyr::pivot_wider(names_from = group, values_from = value)
+
+bti_sgi_means |>
+  dplyr::mutate(
+    source = dplyr::case_match(
+      source,
+      "bti" ~ "Bertelsmann Transformation Index (BTI)",
+      "sgi" ~ "Sustainable Governance Indicators (SGI)"
+    )
+  ) |>
+  gt::gt() |>
+  gt::cols_label(
+    source = "Data source",
+    bti_only = "Countries only in the BTI",
+    bti_sgi = "Countries in both the BTI and SGI",
+    sgi_only = "Countries only in the SGI"
+  ) |>
+  gt::cols_width(
+    source ~ gt::pct(40),
+    bti_only ~ gt::pct(20),
+    bti_sgi ~ gt::pct(20),
+    sgi_only ~ gt::pct(20)
+  ) |>
+  gt::fmt_number(columns = -source, decimals = 1) |>
+  gt::sub_missing() |>
+  out_table()
+
+```
+
+As implied by the differences in @tbl-bti_sgi_mean, and as shown in
+@tbl-bti_sgi_minmax, across the 15 countries included in both sources their
+average minimum and maximum scores in the BTI are higher than their average
+minimum and maximum scores in the SGI. These results suggest that in combining
+these two different sources there should be some form of calibration of their
+re-scaling such that data from the SGI is effectively weighted higher than
+data from the BTI.
+
+```{r}
+#| label: tbl-bti_sgi_minmax
+#| tbl-cap: >
+#|   Average minimum and maximum scores across the BTI and SGI data sources
+#|   for the 15 countries included in both data sources
+bti_sgi_minmax <- bti_sgi_data |>
+  dplyr::add_count(cc_iso3c) |>
+  dplyr::mutate(
+    group = dplyr::case_when(
+      n == 7 & source == "bti" ~ "bti_only",
+      n == 26 & source == "sgi" ~ "sgi_only",
+      n == 33 ~ "bti_sgi"
+    )
+  ) |>
+  dplyr::filter(group == "bti_sgi") |>
+  dplyr::summarise(
+    min = min(value),
+    max = max(value),
+    .by = c(source, group, variable)
+  ) |>
+  dplyr::summarise(
+    across(c(min, max), mean),
+    .by = c(source, group)
+  )
+
+bti_sgi_minmax |>
+  dplyr::select(-group) |>
+  dplyr::mutate(
+    source = dplyr::case_match(
+      source,
+      "bti" ~ "Bertelsmann Transformation Index (BTI)",
+      "sgi" ~ "Sustainable Governance Indicators (SGI)"
+    )
+  ) |>
+  gt::gt() |>
+  gt::cols_label(
+    source = "Data source",
+    min = "Mean minimum score",
+    max = "Mean maximum score"
+  ) |>
+  gt::cols_width(
+    source ~ gt::pct(40),
+    min ~ gt::pct(30),
+    max ~ gt::pct(30)
+  ) |>
+  gt::fmt_number(columns = c(min, max), decimals = 1) |>
+  out_table()
+
+```
+
+Based on the minimum and maximum scores shown in @tbl-bti_sgi_minmax, a pragmatic
+calibration has been adopted such that re-scaled scores from the BTI using
+min-max normalisation have a range of 0.0 to 0.8 (see equation 5) and re-scaled
+scores from the SGI using min-max normalisation have a range of 0.3 to 1.0
+(equation 6).
+
+BTI normalisation:
+$$
+m_c = \frac{x_c - x_{min}}{(x_{max} - x_{min}} * 0.8 \tag{5}
+$$ 
+
+SGI normalisation:
+$$
+m_c = \left( \frac{ x_c - x_{min}}{x_{max} - x_{min}} * 0.7 \right) + 0.3 \tag{6}
+$$
+

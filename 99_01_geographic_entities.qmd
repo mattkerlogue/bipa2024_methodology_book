@@ -1,0 +1,161 @@
+---
+format:
+  html:
+    subtitle: | 
+      Our underlying reference documents for countries and geographic entities,
+      regional and income classifications.
+source_document: https://index.bsg.ox.ac.uk/posts/geographic_entities/
+order: 112
+---
+
+# Geographic entities reference list and country classifications {#sec-geographic_entities}
+
+One of the critical obstacles to international comparative data analysis
+is to ensure that data is appropriately matched across sources, to this end
+the project assigns each country a unique code to match across data sources.
+Different data providers use different approaches to country naming and coding,
+sometimes two sources from the same provider can have different approaches.
+
+Country codes and classifications are used within the Blavatnik Index of Public
+Administration for purely analytical purposes, the inclusion or non-inclusion
+of a country, territory or geographic entity does not indicate a formal position
+by the Blavatnik School of Government or the University of Oxford on the legal
+status of any country, state, territory or geographic feature nor does it
+indicate an endorsement by the Blavatnik School of Government or the University
+of Oxford of any claim of sovereignty over any country, state, territory or
+geographic feature.
+
+## Overview of the geographic entities reference list
+
+The geographic entities reference list has two main purposes:
+- To provide a code list for the use in the processing of source data, so data
+from different sources is appropriate matched for each country.
+- To provide a standard list of names of countries and territories for use in
+project outputs.
+
+The project uses the ISO 3166-1 alpha-3 standard as the basis for country codes.
+The alpha-3 codes are preferred as these tend to have a higher degree of visual
+and linguistic association with the country than the alpha-2 codes.
+
+The processing and assignment of country codes within the source data is made
+possible by the [countrycode](https://cran.r-project.org/package=countrycode)
+R package which provides a comprehensive approach for programmatic assessment
+and assignment of country codes.
+
+The ISO 3166-1 alpha-3 standard defines codes for 249 geographic entities,
+including all 193 UN member states and 56 other entities (typically
+overseas/dependent territories).
+
+In addition to the 249 entities defined in ISO 3166-1, the reference list
+contains 7 user assigned codes to handle geographic entities that appear in
+some data sources but do not exist in the ISO 3166-1 standard.
+
+- Kosovo (XKK) – Data for Kosovo appears in many of the data sources. While
+  having a large degree of international recognition, Kosovo is not a member of
+  the United Nations and as such is not included in the ISO 3166-1 standard. The
+  code XK has been widely used as a 2-letter code for Kosovo, however, across
+  the data sources several different 3-letter codes have been observed (KOS,
+  XKK, XKS and XKX). The user-assigned code XKK has been used in our reference
+  list, as in addition to being observed in the source data this is also the
+  3-letter code used in the Unicode Consortium’s Common Locale Data Repository
+  (CLDR; a widely used internet standard for geographic references).
+- Northern Cyprus (XNC) – Northern Cyprus does not appear in any sources and
+  is only recognised by Türkyie, it is included in the reference list to aid
+  with processing of cartographic data to produce the basemap in output maps
+  of results. As Northern Cyprus is not included in the ISO 3166-1 standard the
+  user-assigned code XNC has been used.
+- Republic Srpska (XRS) – The ISORA data source includes data for the Republic
+  Srpska (one of the two federal entities of Bosnia and Herzegovina). As a
+  sub-national entity, the Republic Srpska does not have an ISO 3166-1 code,
+  the user-assigned code XRS has been used.
+- Somaliland (XSL) – The VDM data source includes data for Somaliland separately
+  from the of Somalia. Somaliland is an unrecognised state and is not included
+  in the ISO 3166-1 standard, the user assigned code of XSL has been used.
+- State of Palestine, Gaza Strip (XPG) – While the ISO 3166-1 standard includes
+  a code for the State of Palestine (PSE), the VDEM data source provides data
+  separately for the West Bank and the Gaza Strip. The user-assigned code XPG
+  has been used.
+- Zanzibar (EAZ) – The VDEM data source includes data for Zanzibar separate
+  to the rest of Tanzania, the ISO 3166-1 standard includes an indeterminate
+  reservation of the code EAZ for Zanzibar and so this has been used.
+
+## Country classifications
+
+To aid in the presentation and analysis of the results two sets of country
+classifications are used: grouping by geographic regions and grouping by
+economic classification.
+
+### Geographic regions
+
+There are many different approaches for classifying countries into geographic
+regions, in reviewing the geographic spread of countries included in the Index
+(see section 5) a bespoke classification has been developed to ensure that each
+group is of suitable size for comparisons. Our classification assigns countries
+and territories to one of six groups:
+
+- Americas – 22 countries included in the Index results
+- Asia and Pacific – 19 countries included in the Index results
+- Eastern Europe – 20 countries included in the Index results
+- Middle East, North Africa and Central Asia (MENCA) – 14 countries included
+  in the Index results
+- Sub-Saharan Africa – 25 countries included in the Index results
+- Western Europe – 16 countries included in the Index results
+
+The classification is based on the regional groupings used by the IMF for
+their periodic regional economic outlook reports, with some modification. A
+key reason for selecting the IMF grouping over others as the basis for our
+classification was its inclusion of a “Middle East and Central Asia” grouping
+and an “Asia and Pacific” grouping. There are several definitions of which
+countries comprise “the Middle East”, however when using any of these results
+the number of countries included in the Index results is less than 10. There
+are only two countries from Oceania included in the Index results (Australia and
+New Zealand), therefore a grouping which includes these with Asian countries is
+useful for analytical purposes.
+
+The IMF’s regional groupings have been adapted in the following ways:
+
+- Türkiye is included in the IMF’s Europe grouping, but for our classification
+  has been included in our Middle East, North Africa and Central Asia (MENCA)
+  grouping. As a transcontinental country Türkiye has significant economic,
+  social and cultural relationships with both Europe and the Middle East. We
+  have included Türkyie within the MENCA group to ensure the grouping has a
+  suitable number of countries and to reflect that Türkyie is included in
+  some definitions of the Middle East.
+- Pakistan is included in the IMF’s Middle East and Central Asia grouping,
+  but for our classification has been included in the Asia and Pacific grouping.
+  Pakistan’s administrative traditions are more similar to other countries in
+  the Indian sub-continent (Bangladesh, India and Sri Lanka) stemming from the
+  legacy of British colonial rule while other central Asian countries share
+  post-communist traditions. Although a Muslim majority nation it is not
+  commonly included in definitions of the Middle East.
+- The IMF’s Europe grouping has been split into two halves, for simplicity these
+  have been labelled as “Eastern” and “Western” Europe. Without being split, a
+  single Europe grouping would have the largest number of countries represented
+  in the Index (36) and a grouping that is notably larger than the other four
+  groups. For the purposes of our grouping, we define Western Europe as the
+  group of countries that were members of the European Union prior to its 2004
+  enlargement round, the members of the European Free Trade Association and
+  other European microstates. The remaining countries of Europe are included in
+  our Eastern Europe grouping, of these only the Republic of Cyprus is not a
+  post-Communist state and while geographically in Asia it is a member of the
+  European Union and its administrative traditions are more closely associated
+  with other European countries than those in the MENCA grouping.
+
+### Economic classification
+
+For our main economic classification of countries, we use the World Bank’s
+(2023-24)[^wb_class] economies by income level classification. This groups countries
+according to their gross national income per capita into one of four groups:
+
+- High income (GNI per capita > $14,005) – 40 countries included in the Index
+  results
+- Upper middle income (GNI per capita $4,516 to $14,005) – 30 countries included
+  in the Index results
+- Lower middle income (GNI per capita $1,146 to $4,515) – 31 countries included
+  in the Index results
+- Low income (GNI per capita < $1,146) – 12 countries included in the Index
+  results
+
+[^wb_class]: World Bank, 2024, World Bank Group country classifications by income level
+  for FY24, 
+  [https://blogs.worldbank.org/en/opendata/new-world-bank-group-country-classifications-income-level-fy24](https://blogs.worldbank.org/en/opendata/new-world-bank-group-country-classifications-income-level-fy24)

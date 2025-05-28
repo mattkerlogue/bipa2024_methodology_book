@@ -1,0 +1,106 @@
+---
+format:
+  html:
+    subtitle: | 
+      How we aggregate data from source metrics into the final Index scores,
+      including how we handle missing data and weighting.
+source_document: https://index.bsg.ox.ac.uk/posts/data_aggregation/
+order: 110
+---
+
+# Data aggregation and Index calculation {#sec-data_aggregation}
+
+The Index and its sub-components are calculated as aggregations through the
+tiers of its data model. As per the principles set out in the section on
+methodological principles (@sec-data_model_principles) we have
+aimed to ensure the Index has a simple and transparent methodology that makes
+it easy for external users to understand how data flows from the original
+sources to the overall Index.
+
+## Normalising source data into metrics
+
+The lowest tier of the Index’s data model are “metrics”, which are translations
+of original source data. Metrics are calculated by first collating the processed
+and standardised source data into a single dataset, this dataset is then subset
+to the countries selected for inclusion in the Index. The source data is then
+normalised into metrics by scaling the data from 0 to 1, such that 0 represents
+the lowest performance of group of countries and 1 represents the highest
+performance:
+
+- The majority of metrics are scaled using “min-max” normalisation where the
+  lowest score in the source data is translated to 0 and the highest score is
+  translated to 1.
+- For some metrics the source must be inverted, that is their highest score
+  represents worse performance than their lowest score and thus the highest
+  score is translated to 0 while the lowest score is translated to 1.
+- For some metrics both the highest and lowest score in the source data
+  reflects “worse performance” compared to a reference figure. For example,
+  gender parity in employment where the ideal would be a 50:50 split between
+  men and women in the workforce. For these metrics the distance from the
+  reference value is calculated and then this distance is scaled from 0 to 1
+  such that values closest to the reference point are scored 1 and those
+  furthest from the reference point are scored 0.
+- The Bertelsmann Transformation Index (BTI) and the Sustainable Governance
+  Indicators (SGI) are related data projects with differing country coverage
+  that is somewhat influenced by economic development levels. Having compared
+  the data in these sources a differential scaling is applied such that data
+  from the BTI is scaled from 0 to 0.8 and data from the SGI is scaled from
+  0.3 to 1.
+
+The section on re-scaling and transformation (@sec-rescaling_transformation)
+has more details about how we approach this.
+
+## Aggregation through the data model
+
+After transforming the source data into metrics, subsequent tiers of the data
+model are calculated as the simple arithmetic mean of its constituent parts:
+
+- Indicators are estimated as the mean of their constituent metrics. For
+  example, the impartial behaviour indicator is calculated as the mean of the
+  four metrics that are aligned to it in the data model and for which there is
+  data (policy implementation is impartial; decisions free of interference;
+  respect for due process; officials impartial in their duties).
+- Themes are calculated as the mean of their constituent indicators. For
+  example, the integrity theme is calculated as the mean of the four indicators
+  aligned to it in the data model and for which there is data (impartial
+  behaviour; corruption; sanctions; and, integrity data).
+- Domains are calculated as the mean of their constituent themes. For example,
+  the Strategy and Leadership domain is calculated as mean of the four themes
+  aligned to it in the data model and for which there is data (strategic
+  capacity; openness and communications; integrity; and, innovation).
+- Finally, the Index is calculated as a mean of the four domains (Strategy &
+  Leadership; Public Policy; National Delivery; and, People and Processes).
+
+At each stage of calculation values are rounded to 2 decimal places to reduce
+the impact of any spurious precision arising from either the scaling of the
+original source data or calculation through the various aggregation levels.
+
+The rescaling of data to the 0-1 scale occurs only when converting source data
+to metrics, the aggregations into the higher tiers of the data model are not
+rescaled. Therefore, the theoretical minimum of the Index (0) represents the
+situation that a country being the lowest performing country in all data sources
+it is present in and the theoretical maximum (1) represents the situation that
+a country being the highest performing country in all data sources it is
+present in.
+
+## Handling of missing data
+
+As outlined in the section on data coverage and country selection
+(@sec-country_selection), all but one country included in the Index has some
+degree of missing data. To ensure the methodology remains as simple and
+transparent as possible it was decided not to make any imputation of missing
+data. Based on the aggregation methodology this implies that a country’s
+performance in any missing data is equivalent to its average performance in its
+observed data points.
+
+## Weighting of data
+
+As with the handling of missing data, to maintain the simplicity and
+transparency of the methodology it was decided not to apply any explicit
+weighting to the data. While there is no explicit weighting, the structure of
+the data model creates an implicit weighting structure. However, each country
+has its own pattern of missing data and therefore the actual weighting of an
+individual metric on a country’s scores will vary depending on what data is
+does and does not have. The implicit weight for individual metrics varies from
+0.179% to 6.25%, read the section on the implied weighting structure
+(@sec-implied_weighting) for more details.

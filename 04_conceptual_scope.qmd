@@ -1,0 +1,84 @@
+---
+format:
+  html:
+    subtitle: | 
+      How do we define our unit(s) of our analysis for the Blavatnik Index.
+source_document: https://index.bsg.ox.ac.uk/posts/conceptual_scope/
+order: 104
+---
+
+# Defining the Index's conceptual scope {#sec-conceptual_scope}
+
+The aim of the Blavatnik Index of Public Administration is to compare the
+qualities and functions of national bureaucracies – the work of officials in
+the achievement of a national government’s objectives. While this scope sounds
+simple at first glance, defining the unit(s) of analysis is not, as even
+among countries with shared administrative cultures or histories there are
+idiosyncrasies in each country’s own system of government.
+
+There are three traditional approaches to defining a country’s “public
+administration” or “civil service”:
+
+- An organisational approach which focuses on the structure of government,
+  featuring “upstream” entities (e.g. ministries) which set the policy direction
+  and procedural regulation for “downstream” entities (e.g. agencies) that
+  implement policy or deliver services.
+- An accounting approach which focuses on the entities which are
+  owned/controlled by the national government and included in the “general
+  government” category in the UN’s System of National Accounts (SNA).
+- An employment status approach which focuses on the body of individuals
+  employed as civil servants.
+
+All three of these approaches present challenges for cross-country comparisons:
+
+- The organisational approach is influenced by the constitutional arrangements
+  and administrative norms of a country: whether a country is a federal or
+  unitary state, whether a country is highly centralised or decentralised in
+  its approach to policy development and/or public service delivery, whether
+  public services are delivered by publicly owned entities or outsourced to
+  private sector or civil society entities.
+- The accounting approach is an overly broad definition designed for the
+  compilation of national accounts and the comparison government spending. As
+  such, it encompasses not only national government activity but that of all
+  public sector entities, including sub-national and municipal government,
+  public corporations and many other entities which do tend to fall within
+  the definitions used by practitioners and researchers when discussing the
+  bureaucratic activities of government officials.
+- Some countries have distinct employment regimes (laws/regulations) that
+  create a separate category of employment for “civil servants” separate
+  from other types of workers but others do not and rely on individual
+  laws/regulations or contractual terms to define any particular additional
+  responsibilities/privileges. Even in countries with distinct employment
+  regimes there are variations who this regime applies to, for example whether
+  it is limited to just national government employees or covers all public
+  employment in the country.
+
+It is also important to define what the Index does not intend to measure, namely
+policy outcomes or wider aspects of public governance:
+
+- The Index does not measure policy outcomes (e.g. life expectancy, literacy
+  rates, unemployment rates, incomes or economic growth). The Index seeks to
+  provide a way of measuring and comparing bureaucracies whereas the goals for
+  policy outcomes are set by politicians. The logic model of the Index's
+  conceptual framework assumes that for two countries with the same goal,
+  the country with the “better” bureaucracy ought to achieve better outcomes
+  (all other things being equal). Even where countries have similar goals,
+  they may take very different approaches to achieving those goals or set
+  different targets to measure their progress.
+- The Index also does not measure wider aspects of public governance or
+  democracy such as the legislature, the judiciary or the rule of law, or media
+  and academic freedom. These wider aspects, while crucial to understand a
+  country’s governance in full are more directly considerations for political
+  rather than administrative actors. The Index is intended to be a practical
+  tool to help understand how public administrations work and where countries
+  can learn from others to drive improvements.
+
+We use two criteria to define the scope and unit(s) of analysis for the
+Blavatnik Index of Public Administration:
+
+- The Index measures national-level governments – the central/federal
+  government entity of a country are the primary focus, but relying on
+  “general government” or “public sector” proxies if necessary.
+- The Index measures executive/administrative activities and characteristics –
+  the activities and characteristics of the national government’s executive,
+  especially relating to the administration of government and public services.

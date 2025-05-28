@@ -1,0 +1,155 @@
+---
+format:
+  html:
+    subtitle: | 
+      Details of the pre-processing we apply to four of the sources used in the
+      Index.
+source_document: https://index.bsg.ox.ac.uk/posts/preprocessing/
+order: 113
+---
+
+# Pre-processing of data sources {#sec-preprocessing}
+
+All source data files undergo some form of processing to extract them into
+a common format, see the main section on processing of sources
+(@sec-source_processing) for full details, however there are 4 sources which
+undergo some form of re-calculation of the original data:
+
+- the Global Data Barometer,
+- the GovTech Maturity Index,
+- the International Survey of Revenue Administration, and
+- the Open Data Inventory.
+
+This section summarises the pre-processing we have undertaken of these sources,
+the source code for this processing is available on
+[Github](https://github.com/blavatnik-index/bipa2024_sourcedata).
+
+## Global Data Barometer
+
+The D4D.net and ILDA Global Data Barometer attributes its underlying data to
+both 4 “pillars” (availability, capability, governance, and use and impact) and
+7 “modules” (capabilities, climate action, company information, governance,
+health & covid, land, political integrity, public finance, and public
+procurement). The re-processing of the Global Data Barometer extracts and
+aggregates the data for each of the governance and capabilities pillars to
+create two overall scores for each country, it then aggregates the remaining
+data on availability and use & impact by module to create seven further scores
+for each country relating to each module.
+
+The 9 variables extracted from the re-processed Global Data Barometer data
+cover:
+
+- Climate data availability – sum of the availability scores relating to
+  climate data
+- Company data availability and impact – sum of the availability and impact
+  scores relating to company data
+- Data capability – sum of the scores relating to data capability measures
+- Data governance – sum of the scores relating to data governance measures
+- Health data availability – sum of the scores relating to health data
+- Integrity data availability and impact – sum of scores relating to the
+  availability and impact of integrity data
+- Land data availability and impact – sum of scores relating to the
+  availability of land data
+- Procurement data and impact – sum of scores relating to the availability and
+  impact of procurement data
+- Public finance data availability – sum of scores relating to finance data
+  availability
+
+## GovTech Maturity Index
+
+The World Bank’s GovTech Maturity Index (GTMI) provides a detailed assessment
+of national governments digital government policies, technologies and digital
+public services. The high-level results of the GTMI are outputs from a factor
+analysis of the raw input data, it is therefore not easy to directly identify
+from the overall results how countries can take action. Furthermore, in addition
+to its own questionnaire (completed by government officials or World Bank
+researchers in the case of non-response) the GTMI incorporates some data from
+other sources which are either already used by the Blavatnik Index of Public
+Administration (in the case of the ITU’s Global Cybersecurity Index) or have
+been rejected for inclusion (components of the UN’s E-Government Development
+Index). The GTMI data is therefore re-processed to extract its own aggregates
+of the original raw data.
+
+The variables 7 extracted from the re-processes GTMI data cover:
+- Administrative IT systems – the existence and nature of IT systems for
+  administration (HR, payroll, financial management and e-procurement)
+- Back-end technologies and infrastructure – the existence and extent of
+  enabling technologies and frameworks (cloud computing, enterprise
+  architectures, service busses, interoperability frameworks)
+- Digital methods for public participation – the existence of digital tools to
+  enable public participation and feedback
+- Digital services and technologies for end-users – the existence of end-user
+  service portals and related technologies (e-payment and digital signatures).
+- Open government and data portals – the existence and nature of any open
+  government portals and open data repositories
+- Strategy and policy for digital government – the approach to and policies in
+  support of digital government (strategy documents, institutional structures,
+  open source policies, data privacy laws and institutions, support for skills
+  development)
+- Support for digital innovations within government – the existence of any
+  policies and practices encouraging digital innovation (innovation strategy,
+  institutional structures, support for digital SMEs).
+
+## International Survey of Revenue Administration
+
+The International Survey of Revenue of Administration (ISORA) is collected
+and published by the Inter-American Center for Tax Administration [CIAT];
+the International Monetary Fund [IMF]; the Intra-European Organization of
+Tax Administrations [IOTA]; and the Organization for Economic Co-operation
+and Development [OECD]. The ISORA dataset provides in-depth information about
+tax collection and operations from 172 tax agencies, the re-processing of the
+data in order to calculate proportions, coerce categorical data into numerical
+values, and exclude outlier values.
+
+The 14 variables extracted from the re-processed ISORA data cover:
+- Administrative costs (% of revenue) – the administrative operating costs of
+  the tax agency as a proportion of net revenue
+- Corporate tax (% filed on-time) – the number of corporate tax returns filed on
+  time as a proportion of all corporate tax returns
+- Corporate tax (% paid on-time) – the number of corporate tax returns paid on
+  time as a proportion of all corporate tax returns
+- Electronic filing: corporate tax – the number of corporate tax returns filed
+  via an electronic method as a proportion of all corporate tax returns
+- Electronic filing: personal tax – the number of personal tax returns filed via
+  an electronic method as a proportion of all personal tax returns
+- Electronic payments (%) – the volume of payments made electronically as a
+  proportion of all payments, of the value of payments made electronically as a
+  proportion of the value of all payments (if volume not available).
+- Personal tax (% filed on-time) – the number of personal tax returns filed on
+  time as a proportion of all personal tax returns.
+- Personal tax (% paid on-time) – the number of personal tax returns paid on
+  time as a proportion of all personal tax returns
+- Proportion of all tax officials that are female – the number of officials that
+  are female as a proportion of all officials
+- Proportion of senior tax officials that are female – the number of senior
+  officials in that are female as a proportion of all senior officials
+- Proportion of service contacts via digital channels – the number of service
+  contacts via a digital method (online account and chat/digital assistance tools,
+  but not including email) as a proportion of all service contacts (including
+  email)
+- Tax debt (% of revenue) – the value of tax arrears as a proportion of net
+  revenue
+- Turnover of tax agency staff – the change in the number of staff in the
+  reporting year as a proportion of the average number of staff for the
+  reporting year
+- Use of innovative practices and technologies by the tax administration –
+  the extent to which the tax agency is using or putting in place any of 10 
+  practices or technologies (behavioural insights; distributed leger
+  technologies; artificial intelligence or machine learning; cloud computing;
+  data science and analytics; automation; API services; whole of government ID;
+  digital identification technologies; virtual assistants/chatbots).
+
+## Open Data Inventory
+
+The Open Data Watch’s Open Data Inventory (ODIN) measures the coverage and
+openness of official statistics across a several different categories of social,
+economic and environment statistics. The raw data is processed to calculate a
+coverage and openness score for each of these three sets of statistics.
+
+The 6 variables extracted from the re-processed ODIN data are:
+- Economic statistics coverage
+- Economic statistics openness
+- Environmental statistics coverage
+- Environmental statistics openness
+- Social statistics coverage
+- Social statistics openness
