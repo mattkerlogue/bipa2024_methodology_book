@@ -5,6 +5,7 @@ project:
 
 execute: 
   echo: false
+  freeze: auto
 
 book:
   title: "Blavatnik Index of Public Administration 2024: Methodology"
@@ -16,7 +17,8 @@ book:
   image: "images/bipa_icon.png"
   cover-image: "images/bipa2024_methodology_cover.jpg"
   downloads: [pdf, epub]
-  license: CC-BY
+  license: CC-BY (content) & MIT (code)
+  repo-url: https://blavatnik-index.github.io/bipa2024_methodology_report/
   chapters:
     - index.qmd
     - 01_background.qmd
