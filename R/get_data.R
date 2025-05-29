@@ -36,11 +36,6 @@ data_urls <- c(
   ),
   file.path(
     "https://github.com/blavatnik-index/bipa2024_index/raw/refs/heads/main",
-    "data_ref",
-    "data_structure.csv"
-  ),
-  file.path(
-    "https://github.com/blavatnik-index/bipa2024_index/raw/refs/heads/main",
     "data_out",
     "bipa2024_sensitivity_results.csv"
   ),

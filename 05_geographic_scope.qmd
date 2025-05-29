@@ -49,15 +49,17 @@ processed to allow for deeper analysis of particular themes.
 source("R/out_table.R")
 
 metrics_df_raw <- readr::read_csv(
-  file.path("data", "metrics_metadata.csv"), show_col_types = FALSE
+  file.path("data", "metrics_metadata.csv"),
+  show_col_types = FALSE
 )
 data_structure <- readr::read_csv(
-  file.path("data", "data_structure.csv"), show_col_types = FALSE
+  file.path("data", "bipa2024_data_structure.csv"),
+  show_col_types = FALSE
 )
 
 metrics_df <- metrics_df_raw |>
   dplyr::mutate(
-    theme = floor(structure_id/100)*100,
+    theme = floor(structure_id / 100) * 100,
     scope2 = dplyr::case_when(
       grepl("^bti", source_variable) ~ "non_oecd",
       grepl("^sgi", source_variable) ~ "oecd_eu",
@@ -74,7 +76,8 @@ metrics_df <- metrics_df_raw |>
   dplyr::full_join(
     data_structure |>
       dplyr::filter(level == "theme"),
-    by = c("theme" = "structure_id"), suffix = c("_metric", "_theme")
+    by = c("theme" = "structure_id"),
+    suffix = c("_metric", "_theme")
   ) |>
   dplyr::mutate(
     label_theme = forcats::fct_reorder(label_theme, theme)
@@ -87,11 +90,12 @@ metrics_summary <- metrics_df |>
     .by = c(theme, label_theme, scope2)
   ) |>
   dplyr::mutate(
-    domain = floor(theme/10000) * 10000
+    domain = floor(theme / 10000) * 10000
   ) |>
   dplyr::left_join(
     data_structure,
-    by = c("domain" = "structure_id"), suffix = c("_theme", "_domain")
+    by = c("domain" = "structure_id"),
+    suffix = c("_theme", "_domain")
   ) |>
   dplyr::mutate(
     label_domain = forcats::fct_reorder(label, domain)
@@ -102,17 +106,26 @@ metrics_summary <- metrics_df |>
   dplyr::left_join(
     metrics_df |>
       dplyr::mutate(
-        theme = floor(structure_id/100) * 100
+        theme = floor(structure_id / 100) * 100
       ) |>
       dplyr::filter(!is.na(metric) & scope == "global") |>
       dplyr::count(theme),
     by = "theme"
   ) |>
   dplyr::select(
-    label_domain, label_theme, global, oecd_eu, non_oecd, included = n
+    label_domain,
+    label_theme,
+    global,
+    oecd_eu,
+    non_oecd,
+    included = n
   )
 
-gt::gt(metrics_summary, groupname_col = "label_domain", rowname_col = "label_theme") |>
+gt::gt(
+  metrics_summary,
+  groupname_col = "label_domain",
+  rowname_col = "label_theme"
+) |>
   gt::sub_zero(columns = c(global, oecd_eu, non_oecd), zero_text = "—") |>
   gt::sub_missing(columns = c(global, oecd_eu, non_oecd), missing_text = "—") |>
   gt::sub_missing(columns = included, missing_text = 0) |>
